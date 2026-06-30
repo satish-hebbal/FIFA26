@@ -87,15 +87,23 @@ export default function BracketRound({
         ].join(" ")}
       >
         {matches.map((m) => (
-          <div key={m.id} className="relative flex justify-center">
-            {isFinal && !compact && (
-              <Cup className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-44 w-44 -translate-x-1/2 -translate-y-1/2 opacity-70 sm:h-52 sm:w-52" />
-            )}
-            <MatchNode
-              match={m}
-              placeholders={placeholders.get(m.id)}
-              compact={compact}
-            />
+          <div key={m.id} className="flex justify-center">
+            {/* Wrapper hugs the card so the cup centers exactly behind it. */}
+            <div className="relative">
+              {isFinal && (
+                <Cup
+                  className={[
+                    "pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 opacity-80",
+                    compact ? "h-24 w-24" : "h-56 w-56 sm:h-64 sm:w-64",
+                  ].join(" ")}
+                />
+              )}
+              <MatchNode
+                match={m}
+                placeholders={placeholders.get(m.id)}
+                compact={compact}
+              />
+            </div>
           </div>
         ))}
       </div>

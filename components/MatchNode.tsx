@@ -11,13 +11,13 @@ function Flag({ team }: { team: TeamRef | null }) {
         alt=""
         width={20}
         height={20}
-        className="h-5 w-5 shrink-0 rounded-[3px] object-contain"
+        className="h-5 w-5 shrink-0 rounded-[5px] object-contain"
         loading="lazy"
       />
     );
   }
   return (
-    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[3px] bg-board-700/15 text-[9px] font-bold text-board-700/70">
+    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] bg-board-700/15 text-[9px] font-bold text-board-700/70">
       {team?.short?.slice(0, 3) ?? "—"}
     </span>
   );
@@ -177,11 +177,11 @@ function CompactRow({
           alt=""
           width={12}
           height={12}
-          className="h-3 w-3 shrink-0 rounded-[2px] object-contain"
+          className="h-3 w-3 shrink-0 rounded-[3px] object-contain"
           loading="lazy"
         />
       ) : (
-        <span className="h-3 w-3 shrink-0 rounded-[2px] bg-board-700/15" />
+        <span className="h-3 w-3 shrink-0 rounded-[3px] bg-board-700/15" />
       )}
       <span
         className={[

@@ -82,14 +82,14 @@ function Crest({ team, big }: { team: TeamRef | null; big?: boolean }) {
       <img
         src={team.crest}
         alt=""
-        className={`${size} rounded-md object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]`}
+        className={`${size} rounded-lg object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]`}
         loading="lazy"
       />
     );
   }
   return (
     <span
-      className={`${size} flex items-center justify-center rounded-md bg-white/15 text-xs font-bold text-white/80`}
+      className={`${size} flex items-center justify-center rounded-lg bg-white/15 text-xs font-bold text-white/80`}
     >
       {team?.short?.slice(0, 3) ?? "?"}
     </span>
