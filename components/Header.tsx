@@ -86,7 +86,8 @@ export default function Header({
       <div className="flex min-w-0 items-center gap-2">
         {anyLive ? (
           <span className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-accent/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-accent">
-            <span className="live-dot h-2 w-2 rounded-full bg-accent" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/ball.png" alt="" className="spin-ball h-3 w-3" />
             Live
           </span>
         ) : nextMatch ? (

@@ -175,54 +175,61 @@ export default function FeaturedMatch({
       <div className="pitch-veil absolute inset-0" />
 
       {/* content */}
-      <div className="relative z-10 flex flex-col gap-4 p-4 sm:p-5">
-        {/* status row */}
-        <div className="flex items-center justify-between">
-          {live ? (
-            <span
-              className="flex items-center gap-2 rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-accent backdrop-blur-sm"
-              suppressHydrationWarning
-            >
-              <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-                <span className="live-ripple absolute inset-0" />
-                <span className="relative h-2.5 w-2.5 rounded-full bg-accent" />
+      <div className="relative z-10 flex flex-col">
+        <div className="flex flex-col gap-4 p-4 pb-3 sm:p-5 sm:pb-4">
+          {/* status row */}
+          <div className="flex items-center justify-between">
+            {live ? (
+              <span
+                className="flex items-center gap-2 rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-accent backdrop-blur-sm"
+                suppressHydrationWarning
+              >
+                <span className="relative flex h-4 w-4 items-center justify-center">
+                  <span className="live-ripple absolute inset-0" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/ball.png"
+                    alt=""
+                    className="spin-ball relative h-4 w-4"
+                  />
+                </span>
+                Live
+                {clock && (
+                  <span className="tabular-nums text-white/90">{clock}</span>
+                )}
               </span>
-              Live
-              {clock && (
-                <span className="tabular-nums text-white/90">{clock}</span>
-              )}
+            ) : (
+              <span className="rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white/80 backdrop-blur-sm">
+                {finished ? "Full time" : "Up next"}
+              </span>
+            )}
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/65">
+              {roundLabel(match.round)}
             </span>
-          ) : (
-            <span className="rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white/80 backdrop-blur-sm">
-              {finished ? "Full time" : "Up next"}
+          </div>
+
+          {/* teams: home (left) vs away (right) */}
+          <div className="flex items-center gap-3">
+            <TeamSide
+              team={match.home}
+              placeholder={placeholders?.home ?? null}
+              align="left"
+              won={homeWon}
+            />
+            <span className="shrink-0 text-sm font-black uppercase tracking-widest text-white/40">
+              VS
             </span>
-          )}
-          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/65">
-            {roundLabel(match.round)}
-          </span>
+            <TeamSide
+              team={match.away}
+              placeholder={placeholders?.away ?? null}
+              align="right"
+              won={awayWon}
+            />
+          </div>
         </div>
 
-        {/* teams: home (left) vs away (right) */}
-        <div className="flex items-center gap-3">
-          <TeamSide
-            team={match.home}
-            placeholder={placeholders?.home ?? null}
-            align="left"
-            won={homeWon}
-          />
-          <span className="shrink-0 text-sm font-black uppercase tracking-widest text-white/40">
-            VS
-          </span>
-          <TeamSide
-            team={match.away}
-            placeholder={placeholders?.away ?? null}
-            align="right"
-            won={awayWon}
-          />
-        </div>
-
-        {/* score / kickoff card */}
-        <div className="rounded-xl border border-white/15 bg-black/35 px-4 py-3 backdrop-blur-md">
+        {/* scoreboard — trapezoid plinth flush to the bottom of the pitch */}
+        <div className="scoreboard-trapezoid bg-black/50 px-7 pb-4 pt-3 backdrop-blur-md">
           {showScore ? (
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center justify-center gap-3 sm:gap-4">
