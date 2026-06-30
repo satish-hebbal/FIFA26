@@ -11,7 +11,7 @@ function Flag({ team }: { team: TeamRef | null }) {
         alt=""
         width={20}
         height={20}
-        className="h-5 w-5 shrink-0 rounded-[5px] object-contain"
+        className="h-5 w-auto shrink-0 rounded-[5px] object-contain"
         loading="lazy"
       />
     );
@@ -177,7 +177,7 @@ function CompactRow({
           alt=""
           width={12}
           height={12}
-          className="h-3 w-3 shrink-0 rounded-[3px] object-contain"
+          className="h-3 w-auto shrink-0 rounded-[3px] object-contain"
           loading="lazy"
         />
       ) : (

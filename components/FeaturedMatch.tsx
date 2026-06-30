@@ -75,21 +75,24 @@ function PitchLines() {
 }
 
 function Crest({ team, big }: { team: TeamRef | null; big?: boolean }) {
-  const size = big ? "h-12 w-12 sm:h-14 sm:w-14" : "h-9 w-9";
   if (team?.crest) {
+    // Fixed height + auto width: the box hugs the flag's true shape, so the
+    // border-radius clips the actual flag corners (not transparent margins).
+    const h = big ? "h-11 sm:h-12" : "h-8";
     // eslint-disable-next-line @next/next/no-img-element
     return (
       <img
         src={team.crest}
         alt=""
-        className={`${size} rounded-lg object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]`}
+        className={`${h} w-auto rounded-lg object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]`}
         loading="lazy"
       />
     );
   }
+  const sq = big ? "h-12 w-12 sm:h-14 sm:w-14" : "h-9 w-9";
   return (
     <span
-      className={`${size} flex items-center justify-center rounded-lg bg-white/15 text-xs font-bold text-white/80`}
+      className={`${sq} flex items-center justify-center rounded-lg bg-white/15 text-xs font-bold text-white/80`}
     >
       {team?.short?.slice(0, 3) ?? "?"}
     </span>

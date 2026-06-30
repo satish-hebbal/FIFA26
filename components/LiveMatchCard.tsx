@@ -18,7 +18,7 @@ function TeamRow({
           alt=""
           width={22}
           height={22}
-          className="h-[22px] w-[22px] rounded-[5px] object-contain"
+          className="h-[22px] w-auto rounded-[5px] object-contain"
           loading="lazy"
         />
       ) : (

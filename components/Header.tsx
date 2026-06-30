@@ -55,7 +55,7 @@ function TeamTag({ team }: { team: BracketMatch["home"] }) {
           alt=""
           width={14}
           height={14}
-          className="h-[14px] w-[14px] rounded-[3px] object-contain"
+          className="h-[14px] w-auto rounded-[3px] object-contain"
           loading="lazy"
         />
       ) : null}
