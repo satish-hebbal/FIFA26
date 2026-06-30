@@ -39,6 +39,22 @@ export default function Bracket({ data }: { data: WorldCupData }) {
   const [svgSize, setSvgSize] = useState({ w: 0, h: 0 });
   // "fit" = condense all rounds into one frame (compact nodes, no h-scroll).
   const [fit, setFit] = useState(false);
+  // Glossy shine sweep that plays across the board on a zoom toggle.
+  const [shine, setShine] = useState(false);
+  const shineTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const toggleFit = () => {
+    setFit((f) => !f);
+    // Restart the sweep cleanly even on rapid re-toggles.
+    setShine(false);
+    requestAnimationFrame(() => {
+      setShine(true);
+      clearTimeout(shineTimer.current);
+      shineTimer.current = setTimeout(() => setShine(false), 780);
+    });
+  };
+
+  useEffect(() => () => clearTimeout(shineTimer.current), []);
 
   const placeholders = useMemo(
     () => buildPlaceholders(data.bracket),
@@ -222,7 +238,11 @@ export default function Bracket({ data }: { data: WorldCupData }) {
   };
 
   return (
-    <section ref={sectionRef} className="board-surface rounded-2xl p-3 sm:p-4">
+    <section
+      ref={sectionRef}
+      className="board-surface relative overflow-hidden rounded-2xl p-3 sm:p-4"
+    >
+      {shine && <div className="shine-sweep z-20" />}
       {/* Round selector chips + fit/expand toggle */}
       <div className="mb-3 flex items-center gap-2">
         {!fit ? (
@@ -252,7 +272,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
         )}
 
         <button
-          onClick={() => setFit((f) => !f)}
+          onClick={toggleFit}
           aria-label={fit ? "Expand bracket" : "Fit whole bracket"}
           title={fit ? "Expand" : "Fit to screen"}
           className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white/80 transition-colors hover:bg-white/15"
