@@ -36,7 +36,7 @@ export default function LiveScores({ data }: { data: WorldCupData }) {
               <span className="text-white/45">v</span>
               <NextTeam team={next.away} />
             </span>
-            <span className="text-white/60">
+            <span className="text-white/60" suppressHydrationWarning>
               ·{" "}
               {new Date(next.kickoff!).toLocaleString(undefined, {
                 month: "short",
