@@ -20,7 +20,7 @@ export default function LiveScores({ data }: { data: WorldCupData }) {
     return (
       <section className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white/70">
         {next ? (
-          <span>
+          <span suppressHydrationWarning>
             No matches live right now — next:{" "}
             <span className="font-semibold text-white/90">
               {next.home?.short ?? "TBD"} v {next.away?.short ?? "TBD"}

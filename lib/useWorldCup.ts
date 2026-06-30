@@ -25,9 +25,9 @@ export function useWorldCup(initial: WorldCupData | null = null): UseWorldCup {
   const [data, setData] = useState<WorldCupData | null>(initial);
   const [loading, setLoading] = useState(initial === null);
   const [refreshing, setRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(
-    initial ? new Date() : null
-  );
+  // Start null so server and first client render agree (no SSR timestamp).
+  // Set on mount / after each successful poll, client-side only.
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const mounted = useRef(true);
 
   const load = useCallback(async () => {
@@ -52,8 +52,10 @@ export function useWorldCup(initial: WorldCupData | null = null): UseWorldCup {
 
   useEffect(() => {
     mounted.current = true;
-    // If we hydrated from server data, skip the immediate fetch; otherwise load now.
+    // If we hydrated from server data, mark it as freshly loaded (client-side);
+    // otherwise fetch immediately.
     if (initial === null) void load();
+    else setLastUpdated(new Date());
 
     const id = setInterval(() => void load(), POLL_INTERVAL_MS);
     const onVisible = () => {

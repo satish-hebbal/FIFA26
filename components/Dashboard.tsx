@@ -21,7 +21,7 @@ export default function Dashboard({ initial }: { initial: WorldCupData }) {
             ? "Updating live during matches"
             : "Final · Jul 19, 2026 · MetLife Stadium"}
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1.5" suppressHydrationWarning>
           {refreshing && (
             <span className="soft-pulse h-1.5 w-1.5 rounded-full bg-white/50" />
           )}

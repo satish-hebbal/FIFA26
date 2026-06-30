@@ -122,7 +122,10 @@ export default function MatchNode({
               {match.status === "LIVE" ? "Live" : ""}
             </span>
           ) : kickoff ? (
-            <span className="text-[10px] font-medium text-plate-ink/55">
+            <span
+              className="text-[10px] font-medium text-plate-ink/55"
+              suppressHydrationWarning
+            >
               {kickoff.toLocaleDateString(undefined, {
                 month: "short",
                 day: "numeric",
