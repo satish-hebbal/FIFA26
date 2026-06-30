@@ -198,7 +198,13 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     if (canvas) canvas.scrollLeft = 0;
     setActiveRound(ROUNDS[0].key);
     const raf = requestAnimationFrame(() => {
-      sectionRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      // Leave the same gap above as the side gutters (the section's left offset).
+      const gap = rect.left;
+      const top = Math.max(0, window.scrollY + rect.top - gap);
+      window.scrollTo({ top, behavior: "auto" });
     });
     return () => cancelAnimationFrame(raf);
   }, [fit]);
