@@ -53,9 +53,9 @@ function TeamTag({ team }: { team: BracketMatch["home"] }) {
         <img
           src={team.crest}
           alt=""
-          width={14}
+          width={20}
           height={14}
-          className="h-[14px] w-auto rounded-[3px] object-contain"
+          className="h-[14px] w-5 rounded-[3px] object-cover"
           loading="lazy"
         />
       ) : null}

@@ -16,13 +16,13 @@ function TeamRow({
         <img
           src={team.crest}
           alt=""
-          width={22}
+          width={32}
           height={22}
-          className="h-[22px] w-auto rounded-[5px] object-contain"
+          className="h-[22px] w-8 rounded-[5px] object-cover"
           loading="lazy"
         />
       ) : (
-        <span className="flex h-[22px] w-[22px] items-center justify-center rounded-[5px] bg-white/10 text-[9px] font-bold text-white/70">
+        <span className="flex h-[22px] w-8 items-center justify-center rounded-[5px] bg-white/10 text-[9px] font-bold text-white/70">
           {team?.short?.slice(0, 3) ?? "—"}
         </span>
       )}

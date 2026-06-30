@@ -75,24 +75,23 @@ function PitchLines() {
 }
 
 function Crest({ team, big }: { team: TeamRef | null; big?: boolean }) {
+  // Uniform box for every flag; object-cover fills it (cropping as needed) so
+  // all flags are the same size and the radius clips the actual flag edges.
+  const size = big ? "h-10 w-14 sm:h-11 sm:w-16" : "h-8 w-11";
   if (team?.crest) {
-    // Fixed height + auto width: the box hugs the flag's true shape, so the
-    // border-radius clips the actual flag corners (not transparent margins).
-    const h = big ? "h-11 sm:h-12" : "h-8";
     // eslint-disable-next-line @next/next/no-img-element
     return (
       <img
         src={team.crest}
         alt=""
-        className={`${h} w-auto rounded-lg object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]`}
+        className={`${size} rounded-lg object-cover drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]`}
         loading="lazy"
       />
     );
   }
-  const sq = big ? "h-12 w-12 sm:h-14 sm:w-14" : "h-9 w-9";
   return (
     <span
-      className={`${sq} flex items-center justify-center rounded-lg bg-white/15 text-xs font-bold text-white/80`}
+      className={`${size} flex items-center justify-center rounded-lg bg-white/15 text-xs font-bold text-white/80`}
     >
       {team?.short?.slice(0, 3) ?? "?"}
     </span>
