@@ -109,9 +109,23 @@ function applyRaw(target: BracketMatch, raw: RawMatch): void {
   target.status = mapStatus(raw.status);
   target.kickoff = raw.utcDate ?? target.kickoff;
 
-  const ft = raw.score?.fullTime;
-  target.homeScore = ft?.home ?? null;
-  target.awayScore = ft?.away ?? null;
+  // Headline score. football-data folds the shootout into fullTime (e.g. a
+  // 1-1 that ends 3-4 on pens reports fullTime 4-5). For shootouts we instead
+  // show the level score at the end of play and surface the pens separately.
+  const sc = raw.score;
+  if (sc?.duration === "PENALTY_SHOOTOUT") {
+    const reg = sc.regularTime;
+    const et = sc.extraTime;
+    target.homeScore = (reg?.home ?? 0) + (et?.home ?? 0);
+    target.awayScore = (reg?.away ?? 0) + (et?.away ?? 0);
+    target.penHome = sc.penalties?.home ?? null;
+    target.penAway = sc.penalties?.away ?? null;
+  } else {
+    target.homeScore = sc?.fullTime?.home ?? null;
+    target.awayScore = sc?.fullTime?.away ?? null;
+    target.penHome = null;
+    target.penAway = null;
+  }
 
   if (target.status === "FINISHED") {
     if (raw.score?.winner === "HOME_TEAM") target.winner = "HOME";

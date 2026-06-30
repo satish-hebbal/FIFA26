@@ -1,4 +1,4 @@
-import type { BracketMatch, Round } from "./types";
+import type { BracketMatch, Round, WorldCupData } from "./types";
 
 export interface RoundMeta {
   key: Exclude<Round, "THIRD_PLACE">;
@@ -44,8 +44,25 @@ export function buildPlaceholders(
   return result;
 }
 
-export function decidedTag(decidedBy: BracketMatch["decidedBy"]): string | null {
-  if (decidedBy === "PENS") return "pens";
-  if (decidedBy === "AET") return "AET";
+/** Short tag for how a match was decided, e.g. "3-4 pens" or "AET". */
+export function decidedTag(match: BracketMatch): string | null {
+  if (match.decidedBy === "PENS") {
+    if (match.penHome != null && match.penAway != null) {
+      return `${match.penHome}-${match.penAway} pens`;
+    }
+    return "pens";
+  }
+  if (match.decidedBy === "AET") return "AET";
   return null;
+}
+
+/** Soonest upcoming match with a known kickoff (used for the header countdown). */
+export function nextUpcomingMatch(data: WorldCupData): BracketMatch | null {
+  const all = [...data.bracket, ...(data.thirdPlace ? [data.thirdPlace] : [])];
+  const upcoming = all
+    .filter((m) => m.status === "UPCOMING" && m.kickoff)
+    .sort(
+      (a, b) => new Date(a.kickoff!).getTime() - new Date(b.kickoff!).getTime()
+    );
+  return upcoming[0] ?? null;
 }

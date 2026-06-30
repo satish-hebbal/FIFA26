@@ -1,22 +1,12 @@
-import type { WorldCupData, BracketMatch } from "@/lib/types";
+import type { WorldCupData } from "@/lib/types";
+import { nextUpcomingMatch } from "@/lib/bracket";
 import LiveMatchCard from "./LiveMatchCard";
-
-function nextUpcoming(data: WorldCupData): BracketMatch | null {
-  const all = [...data.bracket, ...(data.thirdPlace ? [data.thirdPlace] : [])];
-  const upcoming = all
-    .filter((m) => m.status === "UPCOMING" && m.kickoff && m.home && m.away)
-    .sort(
-      (a, b) =>
-        new Date(a.kickoff!).getTime() - new Date(b.kickoff!).getTime()
-    );
-  return upcoming[0] ?? null;
-}
 
 export default function LiveScores({ data }: { data: WorldCupData }) {
   const live = data.live;
 
   if (live.length === 0) {
-    const next = nextUpcoming(data);
+    const next = nextUpcomingMatch(data);
     return (
       <section className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white/70">
         {next ? (

@@ -15,8 +15,10 @@ export interface BracketMatch {
   slot: number; // position within the round (for ordering/wiring)
   home: TeamRef | null; // null if not yet resolved
   away: TeamRef | null;
-  homeScore: number | null;
+  homeScore: number | null; // headline score (for pens, the level score before the shootout)
   awayScore: number | null;
+  penHome?: number | null; // shootout score, when decidedBy === "PENS"
+  penAway?: number | null;
   status: "UPCOMING" | "LIVE" | "FINISHED";
   winner: "HOME" | "AWAY" | null;
   decidedBy: "REGULAR" | "AET" | "PENS" | null;
@@ -51,11 +53,19 @@ export interface RawTeam {
   crest: string | null;
 }
 
+interface ScoreLine {
+  home: number | null;
+  away: number | null;
+}
+
 export interface RawScore {
   winner: "HOME_TEAM" | "AWAY_TEAM" | "DRAW" | null;
   duration: "REGULAR" | "EXTRA_TIME" | "PENALTY_SHOOTOUT" | null;
-  fullTime: { home: number | null; away: number | null };
-  halfTime: { home: number | null; away: number | null };
+  fullTime: ScoreLine;
+  halfTime: ScoreLine;
+  regularTime?: ScoreLine; // present when a match went to ET/pens
+  extraTime?: ScoreLine;
+  penalties?: ScoreLine; // shootout result
 }
 
 export type RawStage =

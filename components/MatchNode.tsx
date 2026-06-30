@@ -82,7 +82,7 @@ export default function MatchNode({
   const finished = match.status === "FINISHED";
   const homeWon = finished && match.winner === "HOME";
   const awayWon = finished && match.winner === "AWAY";
-  const tag = decidedTag(match.decidedBy);
+  const tag = decidedTag(match);
 
   const kickoff =
     match.status === "UPCOMING" && match.kickoff
