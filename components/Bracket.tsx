@@ -438,7 +438,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
           <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/40">
             3rd Place Playoff
           </span>
-          <div className="w-[150px]">
+          <div className="w-[150px] opacity-50">
             <MatchNode match={data.thirdPlace} compact />
           </div>
         </div>

@@ -19,40 +19,65 @@ export default function Dashboard({ initial }: { initial: WorldCupData }) {
       <Header nextMatch={nextMatch} />
       <LiveScores data={current} />
       <Bracket data={current} />
-      <footer className="flex flex-col gap-2 pt-1 text-[11px] text-white/40 sm:flex-row sm:items-center sm:justify-between">
-        <span>
-          {current.anyLive
-            ? "Updating live during matches"
-            : "Final · Jul 19, 2026 · MetLife Stadium"}
-        </span>
-        <span className="flex items-center gap-1.5" suppressHydrationWarning>
-          {refreshing && (
-            <span className="soft-pulse h-1.5 w-1.5 rounded-full bg-white/50" />
-          )}
-          {lastUpdated
-            ? `Updated ${lastUpdated.toLocaleTimeString(undefined, {
-                hour: "numeric",
-                minute: "2-digit",
-              })}`
-            : "—"}
-        </span>
-        <span className="flex items-center gap-3">
+      <footer className="flex flex-col gap-3 pt-1 text-[11px] text-white/40">
+        {/* row 1: status (left) + last-updated (right) */}
+        <div className="flex items-center justify-between gap-3">
+          <span>
+            {current.anyLive
+              ? "Updating live during matches"
+              : "Final · Jul 19, 2026 · MetLife Stadium"}
+          </span>
+          <span className="flex items-center gap-1.5" suppressHydrationWarning>
+            {refreshing && (
+              <span className="soft-pulse h-1.5 w-1.5 rounded-full bg-white/50" />
+            )}
+            {lastUpdated
+              ? `Updated ${lastUpdated.toLocaleTimeString(undefined, {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}`
+              : "—"}
+          </span>
+        </div>
+
+        {/* row 2: logo, centered */}
+        <div className="flex justify-center">
           <LogoLoop />
-          <a
-            href="https://satishhebbal.design"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline-offset-2 hover:text-white/70 hover:underline"
-          >
-            satishhebbal.design
-          </a>
+        </div>
+
+        {/* row 3: made-by credit (left) + disclaimer (right) */}
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-1">
+            Made by
+            <a
+              href="https://satishhebbal.design"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-0.5 font-medium text-white/55 underline-offset-2 hover:text-white/80 hover:underline"
+            >
+              satishhebbal.design
+              <svg
+                viewBox="0 0 24 24"
+                className="h-2.5 w-2.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M7 17 17 7" />
+                <path d="M8 7h9v9" />
+              </svg>
+            </a>
+          </span>
           <Link
             href="/disclaimer"
             className="underline-offset-2 hover:text-white/70 hover:underline"
           >
             Disclaimer
           </Link>
-        </span>
+        </div>
       </footer>
     </main>
   );
