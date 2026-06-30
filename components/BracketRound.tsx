@@ -33,7 +33,7 @@ export default function BracketRound({
   return (
     <section
       data-round={round.key}
-      className="flex w-[224px] shrink-0 snap-start flex-col gap-3 px-2 sm:w-[248px]"
+      className="relative z-10 flex w-[224px] shrink-0 snap-start flex-col gap-3 px-2 sm:w-[248px]"
     >
       <h2 className="sticky top-0 z-10 -mx-2 mb-1 bg-board-900/30 px-3 py-1.5 text-center text-xs font-bold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">
         {round.label}

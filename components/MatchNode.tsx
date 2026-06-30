@@ -175,6 +175,7 @@ export default function MatchNode({
 
   return (
     <div
+      data-match-id={match.id}
       className={[
         "w-[200px] overflow-hidden rounded-xl bg-plate shadow-md ring-1",
         live
@@ -189,7 +190,7 @@ export default function MatchNode({
         emphasis={homeWon}
         dim={awayWon}
       />
-      <div className="h-px bg-board-900/10" />
+      <div data-divider className="h-px bg-board-900/10" />
       <TeamPlate
         team={match.away}
         placeholder={placeholders?.away ?? null}
