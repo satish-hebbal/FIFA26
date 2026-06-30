@@ -24,11 +24,15 @@ export default function BracketRound({
   matches,
   placeholders,
   compact = false,
+  fixedWidth = false,
 }: {
   round: RoundMeta;
   matches: BracketMatch[];
   placeholders: Map<string, { home: string | null; away: string | null }>;
   compact?: boolean;
+  // compact only: use a fixed-width column (so cards keep their size and the
+  // row scrolls horizontally) instead of shrinking to fit the frame.
+  fixedWidth?: boolean;
 }) {
   const isFinal = round.key === "FINAL";
   const champion = isFinal ? championOf(matches[0]) : null;
@@ -39,7 +43,9 @@ export default function BracketRound({
       className={[
         "relative z-10 flex flex-col",
         compact
-          ? "min-w-0 flex-1 gap-1 px-0.5"
+          ? fixedWidth
+            ? "w-[76px] shrink-0 gap-1 px-0.5 sm:w-[96px]"
+            : "min-w-0 flex-1 gap-1 px-0.5"
           : "w-[224px] shrink-0 snap-start gap-3 px-2 sm:w-[248px]",
       ].join(" ")}
     >

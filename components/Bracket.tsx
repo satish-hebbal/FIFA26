@@ -274,6 +274,22 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     return () => cancelAnimationFrame(raf);
   }, [fit]);
 
+  // In the split view, start centered on the Final so the user can scroll one
+  // way for the left half and the other way for the right half.
+  useEffect(() => {
+    if (!(fit && split)) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const raf = requestAnimationFrame(() => {
+      const finalCol = canvas.querySelector<HTMLElement>('[data-round="FINAL"]');
+      if (!finalCol) return;
+      const target =
+        finalCol.offsetLeft + finalCol.offsetWidth / 2 - canvas.clientWidth / 2;
+      canvas.scrollLeft = Math.max(0, target);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [fit, split]);
+
   const scrollToRound = (key: string) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -354,7 +370,9 @@ export default function Bracket({ data }: { data: WorldCupData }) {
         className={[
           "no-scrollbar relative flex pb-2",
           fit
-            ? "gap-0.5 overflow-hidden"
+            ? split
+              ? "gap-1 overflow-x-auto scroll-smooth"
+              : "gap-0.5 overflow-hidden"
             : "snap-x snap-mandatory overflow-x-auto scroll-smooth",
         ].join(" ")}
         style={fit ? undefined : { scrollPaddingLeft: 8 }}
@@ -390,6 +408,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
                 matches={col.matches}
                 placeholders={placeholders}
                 compact
+                fixedWidth
               />
             ))
           : ROUNDS.map((r) => (
