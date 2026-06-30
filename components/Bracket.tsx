@@ -189,7 +189,16 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     }
 
     setSegs(next);
-    setSvgSize({ w: canvas.scrollWidth, h: canvas.scrollHeight });
+    // Size the overlay from the actual column extents, not canvas.scrollWidth:
+    // the SVG lives inside the canvas, so reading scrollWidth would include the
+    // SVG's own (stale, possibly wider) size and never shrink between views.
+    let maxX = 0;
+    let maxY = 0;
+    canvas.querySelectorAll<HTMLElement>("[data-round]").forEach((node) => {
+      maxX = Math.max(maxX, node.offsetLeft + node.offsetWidth);
+      maxY = Math.max(maxY, node.offsetTop + node.offsetHeight);
+    });
+    setSvgSize({ w: maxX, h: maxY });
   }, [feederGroups]);
 
   // Recompute on layout-affecting changes: data updates, resize, font/layout settle.
