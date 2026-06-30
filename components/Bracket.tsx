@@ -204,7 +204,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
       // Leave the same gap above as the side gutters (the section's left offset).
       const gap = rect.left;
       const top = Math.max(0, window.scrollY + rect.top - gap);
-      window.scrollTo({ top, behavior: "auto" });
+      window.scrollTo({ top, behavior: "smooth" });
     });
     return () => cancelAnimationFrame(raf);
   }, [fit]);
