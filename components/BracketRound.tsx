@@ -87,7 +87,10 @@ export default function BracketRound({
         ].join(" ")}
       >
         {matches.map((m) => (
-          <div key={m.id} className="flex justify-center">
+          <div key={m.id} className="relative flex justify-center">
+            {isFinal && !compact && (
+              <Cup className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-44 w-44 -translate-x-1/2 -translate-y-1/2 opacity-70 sm:h-52 sm:w-52" />
+            )}
             <MatchNode
               match={m}
               placeholders={placeholders.get(m.id)}
