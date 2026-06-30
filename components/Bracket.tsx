@@ -32,6 +32,35 @@ function ExpandIcon() {
   );
 }
 
+// View-direction icons: the source SVGs are flat white shapes, so we render
+// them as a currentColor-filled mask. That way they inherit the button's text
+// colour and adapt to the active theme (no per-theme filter hacks).
+function ViewIcon({
+  src,
+  width,
+}: {
+  src: string;
+  width: number;
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-block h-3.5 bg-current"
+      style={{
+        width,
+        WebkitMaskImage: `url(${src})`,
+        maskImage: `url(${src})`,
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+      }}
+    />
+  );
+}
+
 export default function Bracket({ data }: { data: WorldCupData }) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -353,12 +382,11 @@ export default function Bracket({ data }: { data: WorldCupData }) {
             title={split ? "Linear (left to right)" : "Converging (split)"}
             className="flex shrink-0 items-center justify-center rounded-full bg-white/10 px-3 py-2 text-white/80 transition-colors hover:bg-white/15"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={split ? "/left-view.svg" : "/left-right-view.svg"}
-              alt=""
-              className="h-3.5 w-auto"
-            />
+            {split ? (
+              <ViewIcon src="/left-view.svg" width={17} />
+            ) : (
+              <ViewIcon src="/left-right-view.svg" width={24} />
+            )}
           </button>
         )}
 
@@ -401,7 +429,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
                 y1={s.y1}
                 x2={s.x2}
                 y2={s.y2}
-                stroke="rgba(255,255,255,0.4)"
+                stroke="var(--connector)"
                 strokeWidth={2}
                 strokeLinecap="round"
               />

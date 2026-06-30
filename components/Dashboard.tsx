@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import type { WorldCupData } from "@/lib/types";
 import { useWorldCup } from "@/lib/useWorldCup";
 import { nextUpcomingMatch } from "@/lib/bracket";
@@ -45,8 +44,8 @@ export default function Dashboard({ initial }: { initial: WorldCupData }) {
           <LogoLoop />
         </div>
 
-        {/* row 3: made-by credit (left) + disclaimer (right) */}
-        <div className="flex items-center justify-between gap-3">
+        {/* row 3: made-by credit, centered */}
+        <div className="flex justify-center">
           <span className="flex items-center gap-1">
             Made by
             <a
@@ -71,12 +70,6 @@ export default function Dashboard({ initial }: { initial: WorldCupData }) {
               </svg>
             </a>
           </span>
-          <Link
-            href="/disclaimer"
-            className="underline-offset-2 hover:text-white/70 hover:underline"
-          >
-            Disclaimer
-          </Link>
         </div>
       </footer>
     </main>

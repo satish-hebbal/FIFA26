@@ -229,51 +229,19 @@ export default function FeaturedMatch({
         </div>
 
         {/* scoreboard — trapezoid plinth flush to the bottom of the pitch.
-            The fill is a dark base with each team's flag, blurred into a soft
-            colour wash on its side, all clipped to the rounded trapezoid. */}
+            Drawn as an SVG (above the pitch, doesn't resize it) so the top
+            corners can be softly rounded. */}
         <div className="relative px-7 pb-4 pt-3.5">
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ clipPath: `url(#sb-clip-${match.id})` }}
+          <svg
+            className="absolute inset-0 -z-0 h-full w-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
           >
-            <div className="absolute inset-0 bg-black/55" />
-            {match.home?.crest && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={match.home.crest}
-                alt=""
-                aria-hidden="true"
-                className="absolute -left-2 top-1/2 h-[340%] w-2/5 -translate-y-1/2 object-cover opacity-60 blur-2xl"
-              />
-            )}
-            {match.away?.crest && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={match.away.crest}
-                alt=""
-                aria-hidden="true"
-                className="absolute -right-2 top-1/2 h-[340%] w-2/5 -translate-y-1/2 object-cover opacity-60 blur-2xl"
-              />
-            )}
-            {/* darken the centre so the colour only reads at the two ends */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.55) 62%, rgba(0,0,0,0) 100%)",
-              }}
+            <path
+              d="M8.5 0 L91.5 0 Q94 0 95 17 L100 100 L0 100 L5 17 Q6 0 8.5 0 Z"
+              fill="rgba(0,0,0,0.5)"
             />
-          </div>
-          {/* clip shape (objectBoundingBox so it scales to the box) */}
-          <svg className="absolute h-0 w-0" aria-hidden="true">
-            <defs>
-              <clipPath
-                id={`sb-clip-${match.id}`}
-                clipPathUnits="objectBoundingBox"
-              >
-                <path d="M0.085 0 L0.915 0 Q0.94 0 0.95 0.17 L1 1 L0 1 L0.05 0.17 Q0.06 0 0.085 0 Z" />
-              </clipPath>
-            </defs>
           </svg>
           <div className="relative">
           {showScore ? (

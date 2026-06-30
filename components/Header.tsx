@@ -75,7 +75,13 @@ export default function Header({
     <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
       <div className="flex shrink-0 items-center gap-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/cup.svg" alt="" width={20} height={20} className="h-5 w-5" />
+        <img
+          src="/cup.svg"
+          alt=""
+          width={20}
+          height={20}
+          className="cup-mark h-5 w-5"
+        />
         <h1 className="whitespace-nowrap text-base font-extrabold leading-tight tracking-tight text-white sm:text-lg">
           FIFA World Cup <span className="text-gold-400">2026</span>
         </h1>

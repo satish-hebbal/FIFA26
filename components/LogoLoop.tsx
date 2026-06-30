@@ -18,7 +18,7 @@ export default function LogoLoop() {
 
   return (
     <span
-      className="relative inline-block h-5 w-[72px] align-middle"
+      className="logo-mark relative inline-block h-5 w-[72px] align-middle"
       aria-label="Satish Hebbal"
     >
       {LOGOS.map((src, idx) => (
@@ -29,11 +29,7 @@ export default function LogoLoop() {
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-contain object-left transition-opacity duration-700 ease-in-out"
-          style={{
-            opacity: active === idx ? 0.6 : 0,
-            // Recolour the black wordmark to white for the dark footer.
-            filter: "brightness(0) invert(1)",
-          }}
+          style={{ opacity: active === idx ? 0.6 : 0 }}
         />
       ))}
     </span>
