@@ -33,6 +33,7 @@ function ExpandIcon() {
 
 export default function Bracket({ data }: { data: WorldCupData }) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const [activeRound, setActiveRound] = useState<string>(ROUNDS[0].key);
   const [segs, setSegs] = useState<Seg[]>([]);
   const [svgSize, setSvgSize] = useState({ w: 0, h: 0 });
@@ -187,6 +188,21 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     };
   }, [updateActiveFromScroll]);
 
+  // On fit/expand toggle, reset scroll positions so the bracket is fully in
+  // view: zero the canvas's horizontal offset (otherwise a later-round scroll
+  // position cuts off the left rounds) and bring the board back into the
+  // viewport (otherwise a deep vertical scroll from the tall expanded view
+  // leaves you staring at empty space below the shorter compact bracket).
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) canvas.scrollLeft = 0;
+    setActiveRound(ROUNDS[0].key);
+    const raf = requestAnimationFrame(() => {
+      sectionRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [fit]);
+
   const scrollToRound = (key: string) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -200,7 +216,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
   };
 
   return (
-    <section className="board-surface rounded-2xl p-3 sm:p-4">
+    <section ref={sectionRef} className="board-surface rounded-2xl p-3 sm:p-4">
       {/* Round selector chips + fit/expand toggle */}
       <div className="mb-3 flex items-center gap-2">
         {!fit ? (
