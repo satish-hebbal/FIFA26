@@ -23,6 +23,25 @@ function formatCountdown(iso: string, now: number): string {
   return `in ${secs}s`;
 }
 
+// Estimated match clock. The free API tier doesn't expose a live minute, so we
+// approximate it from kickoff (accounting for the ~15-min half-time break) and
+// use the real PAUSED flag for an accurate "HT". Returns a label like "67'".
+function matchClock(
+  kickoffIso: string | null,
+  now: number,
+  paused: boolean
+): string | null {
+  if (paused) return "HT";
+  if (!kickoffIso) return null;
+  const mins = Math.floor((now - new Date(kickoffIso).getTime()) / 60000);
+  if (mins < 0) return null;
+  if (mins <= 45) return `${Math.max(1, mins)}'`;
+  if (mins < 60) return "45+'"; // first-half stoppage (HT is caught above)
+  const second = mins - 15; // subtract the half-time interval
+  if (second >= 90) return "90+'";
+  return `${second}'`;
+}
+
 // Top-down pitch markings, drawn to fill the card (stretched to fit).
 function PitchLines() {
   return (
@@ -127,13 +146,19 @@ export default function FeaturedMatch({
   const awayWon = finished && match.winner === "AWAY";
 
   // now is null until mounted → SSR/first client render agree (no mismatch).
+  // Ticks for both the upcoming countdown and the live minute estimate; faster
+  // when counting down to kickoff (seconds), slower while live (minute).
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
-    if (showScore) return;
+    if (finished) return;
     setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 1000);
+    const id = setInterval(() => setNow(Date.now()), live ? 15_000 : 1000);
     return () => clearInterval(id);
-  }, [showScore]);
+  }, [finished, live]);
+
+  const clock = live && now !== null
+    ? matchClock(match.kickoff, now, match.paused ?? false)
+    : null;
 
   const pens =
     match.decidedBy === "PENS" &&
@@ -152,12 +177,18 @@ export default function FeaturedMatch({
         {/* status row */}
         <div className="flex items-center justify-between">
           {live ? (
-            <span className="flex items-center gap-2 rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-accent backdrop-blur-sm">
+            <span
+              className="flex items-center gap-2 rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-accent backdrop-blur-sm"
+              suppressHydrationWarning
+            >
               <span className="relative flex h-2.5 w-2.5 items-center justify-center">
                 <span className="live-ripple absolute inset-0" />
                 <span className="relative h-2.5 w-2.5 rounded-full bg-accent" />
               </span>
               Live
+              {clock && (
+                <span className="tabular-nums text-white/90">{clock}</span>
+              )}
             </span>
           ) : (
             <span className="rounded-full bg-black/30 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white/80 backdrop-blur-sm">

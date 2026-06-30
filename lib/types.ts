@@ -20,6 +20,7 @@ export interface BracketMatch {
   penHome?: number | null; // shootout score, when decidedBy === "PENS"
   penAway?: number | null;
   status: "UPCOMING" | "LIVE" | "FINISHED";
+  paused?: boolean; // raw PAUSED (i.e. half-time) — only meaningful when LIVE
   winner: "HOME" | "AWAY" | null;
   decidedBy: "REGULAR" | "AET" | "PENS" | null;
   kickoff: string | null; // ISO; render in local time client-side

@@ -107,6 +107,7 @@ function applyRaw(target: BracketMatch, raw: RawMatch): void {
   }
 
   target.status = mapStatus(raw.status);
+  target.paused = raw.status === "PAUSED";
   target.kickoff = raw.utcDate ?? target.kickoff;
 
   // Headline score. football-data folds the shootout into fullTime (e.g. a
