@@ -25,20 +25,41 @@ function NextMatchPill({ next }: { next: BracketMatch }) {
     return () => clearInterval(id);
   }, []);
 
-  const matchup = `${next.home?.short ?? "TBD"} v ${next.away?.short ?? "TBD"}`;
-
   return (
     <span
       className="flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/70"
       suppressHydrationWarning
     >
       <span className="text-gold-400/90">Next</span>
-      <span className="text-white/85">{matchup}</span>
+      <span className="flex items-center gap-1 text-white/85">
+        <TeamTag team={next.home} />
+        <span className="text-white/45">v</span>
+        <TeamTag team={next.away} />
+      </span>
       {now !== null && next.kickoff && (
         <span className="text-white/55">
           · {formatCountdown(next.kickoff, now)}
         </span>
       )}
+    </span>
+  );
+}
+
+function TeamTag({ team }: { team: BracketMatch["home"] }) {
+  return (
+    <span className="flex items-center gap-1">
+      {team?.crest ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={team.crest}
+          alt=""
+          width={14}
+          height={14}
+          className="h-[14px] w-[14px] rounded-[2px] object-contain"
+          loading="lazy"
+        />
+      ) : null}
+      <span>{team?.short ?? "TBD"}</span>
     </span>
   );
 }

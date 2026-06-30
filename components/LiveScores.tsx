@@ -1,6 +1,25 @@
-import type { WorldCupData } from "@/lib/types";
+import type { TeamRef, WorldCupData } from "@/lib/types";
 import { nextUpcomingMatch } from "@/lib/bracket";
 import LiveMatchCard from "./LiveMatchCard";
+
+function NextTeam({ team }: { team: TeamRef | null }) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      {team?.crest ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={team.crest}
+          alt=""
+          width={15}
+          height={15}
+          className="h-[15px] w-[15px] rounded-[2px] object-contain"
+          loading="lazy"
+        />
+      ) : null}
+      <span>{team?.short ?? "TBD"}</span>
+    </span>
+  );
+}
 
 export default function LiveScores({ data }: { data: WorldCupData }) {
   const live = data.live;
@@ -10,18 +29,22 @@ export default function LiveScores({ data }: { data: WorldCupData }) {
     return (
       <section className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white/70">
         {next ? (
-          <span suppressHydrationWarning>
-            No matches live right now — next:{" "}
-            <span className="font-semibold text-white/90">
-              {next.home?.short ?? "TBD"} v {next.away?.short ?? "TBD"}
+          <span className="flex flex-wrap items-center gap-1.5" suppressHydrationWarning>
+            No matches live right now — next:
+            <span className="inline-flex items-center gap-1.5 font-semibold text-white/90">
+              <NextTeam team={next.home} />
+              <span className="text-white/45">v</span>
+              <NextTeam team={next.away} />
             </span>
-            ,{" "}
-            {new Date(next.kickoff!).toLocaleString(undefined, {
-              month: "short",
-              day: "numeric",
-              hour: "numeric",
-              minute: "2-digit",
-            })}
+            <span className="text-white/60">
+              ·{" "}
+              {new Date(next.kickoff!).toLocaleString(undefined, {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </span>
           </span>
         ) : (
           <span>No matches live right now.</span>
