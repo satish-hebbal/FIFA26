@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 import ThemeToggle from "@/components/ThemeToggle";
+import { PostHogProvider } from "./providers";
 
 const notoSans = Noto_Sans({
   subsets: ["latin"],
@@ -40,8 +41,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {children}
-        <ThemeToggle />
+        <PostHogProvider>
+          {children}
+          <ThemeToggle />
+        </PostHogProvider>
       </body>
     </html>
   );
