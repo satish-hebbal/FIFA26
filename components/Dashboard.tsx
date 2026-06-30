@@ -7,6 +7,7 @@ import { nextUpcomingMatch } from "@/lib/bracket";
 import Header from "./Header";
 import LiveScores from "./LiveScores";
 import Bracket from "./Bracket";
+import LogoLoop from "./LogoLoop";
 
 export default function Dashboard({ initial }: { initial: WorldCupData }) {
   const { data, lastUpdated, refreshing } = useWorldCup(initial);
@@ -36,6 +37,7 @@ export default function Dashboard({ initial }: { initial: WorldCupData }) {
             : "—"}
         </span>
         <span className="flex items-center gap-3">
+          <LogoLoop />
           <a
             href="https://satishhebbal.design"
             target="_blank"
