@@ -4,10 +4,13 @@ import MatchNode from "./MatchNode";
 
 function Cup({ className = "" }: { className?: string }) {
   return (
-    <span className={["relative inline-block", className].join(" ")} aria-hidden="true">
-      <span className="trophy-glow" />
-      <span className="trophy-cup" />
-    </span>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/cup-image.png"
+      alt=""
+      aria-hidden="true"
+      className={["cup-backdrop object-contain", className].join(" ")}
+    />
   );
 }
 
@@ -87,23 +90,23 @@ export default function BracketRound({
         ].join(" ")}
       >
         {matches.map((m) => (
-          <div key={m.id} className="flex justify-center">
-            {/* Wrapper hugs the card so the cup centers exactly behind it. */}
-            <div className="relative">
-              {isFinal && (
-                <Cup
-                  className={[
-                    "pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 opacity-80",
-                    compact ? "h-24 w-24" : "h-56 w-56 sm:h-64 sm:w-64",
-                  ].join(" ")}
-                />
-              )}
-              <MatchNode
-                match={m}
-                placeholders={placeholders.get(m.id)}
-                compact={compact}
+          <div key={m.id} className="relative flex justify-center">
+            {/* Cup backdrop, absolutely centered on the column (= on the card,
+                which is itself centered) so it sits exactly behind without
+                affecting the card's layout. */}
+            {isFinal && (
+              <Cup
+                className={[
+                  "pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2",
+                  compact ? "h-20" : "h-48 sm:h-56",
+                ].join(" ")}
               />
-            </div>
+            )}
+            <MatchNode
+              match={m}
+              placeholders={placeholders.get(m.id)}
+              compact={compact}
+            />
           </div>
         ))}
       </div>

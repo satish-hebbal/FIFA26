@@ -162,6 +162,13 @@ body::before {
   animation-delay: 0.9s;
 }
 
+/* Champion cup backdrop: the cup-image.png sitting behind the Final card,
+   with a soft gold glow that gently breathes. */
+.cup-backdrop {
+  filter: drop-shadow(0 0 18px rgba(255, 210, 63, 0.45));
+  animation: soft-pulse 2.8s ease-in-out infinite;
+}
+
 /* Champion cup: cup.svg used as a mask, filled with a gold gradient that
    sweeps for a shine effect, sitting on a soft pulsing glow. */
 @keyframes trophy-shine {

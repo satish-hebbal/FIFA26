@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { WorldCupData } from "@/lib/types";
+import type { BracketMatch, WorldCupData } from "@/lib/types";
+import type { RoundMeta } from "@/lib/bracket";
 import { ROUNDS, buildPlaceholders } from "@/lib/bracket";
 import BracketRound from "./BracketRound";
 import MatchNode from "./MatchNode";
@@ -39,6 +40,9 @@ export default function Bracket({ data }: { data: WorldCupData }) {
   const [svgSize, setSvgSize] = useState({ w: 0, h: 0 });
   // "fit" = condense all rounds into one frame (compact nodes, no h-scroll).
   const [fit, setFit] = useState(false);
+  // "split" (fit only) = converging layout: half the draw flows in from the
+  // left, half from the right, meeting at the Final in the center.
+  const [split, setSplit] = useState(false);
   // Glossy shine sweep that plays across the board on a zoom toggle.
   const [shine, setShine] = useState(false);
   const shineTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -73,6 +77,45 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     }
     return map;
   }, [data.bracket]);
+
+  // Which final-half each match belongs to (for the converging split view):
+  // "L" feeds the first semi-final, "R" the second.
+  const sideOf = useMemo(() => {
+    const map = new Map<string, "L" | "R">();
+    const final = data.bracket.find((m) => m.round === "FINAL");
+    if (!final) return map;
+    const feedersOf = (id: string) =>
+      data.bracket
+        .filter((m) => m.feedsInto === id)
+        .sort((a, b) => a.slot - b.slot);
+    const assign = (id: string, side: "L" | "R") => {
+      map.set(id, side);
+      for (const f of feedersOf(id)) assign(f.id, side);
+    };
+    const sfs = feedersOf(final.id);
+    if (sfs[0]) assign(sfs[0].id, "L");
+    if (sfs[1]) assign(sfs[1].id, "R");
+    return map;
+  }, [data.bracket]);
+
+  // Columns for the split view: left rounds inward (R32→SF), FINAL center,
+  // then right rounds outward (SF→R32), mirrored.
+  const splitColumns = useMemo(() => {
+    const sideMatches = (key: string, side: "L" | "R") =>
+      (byRound.get(key) ?? []).filter((m) => sideOf.get(m.id) === side);
+    const meta = (key: string) => ROUNDS.find((r) => r.key === key)!;
+    const cols: { id: string; round: RoundMeta; matches: BracketMatch[] }[] = [];
+    for (const k of ["R32", "R16", "QF", "SF"])
+      cols.push({ id: `${k}-L`, round: meta(k), matches: sideMatches(k, "L") });
+    cols.push({
+      id: "FINAL",
+      round: meta("FINAL"),
+      matches: byRound.get("FINAL") ?? [],
+    });
+    for (const k of ["SF", "QF", "R16", "R32"])
+      cols.push({ id: `${k}-R`, round: meta(k), matches: sideMatches(k, "R") });
+    return cols;
+  }, [byRound, sideOf]);
 
   // Feeder groups: target match id → its feeder matches (sorted by slot).
   const feederGroups = useMemo(() => {
@@ -112,6 +155,8 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     });
 
     const next: Seg[] = [];
+    const centerX = (a: { left: number; right: number }) =>
+      (a.left + a.right) / 2;
     for (const [targetId, feeders] of feederGroups) {
       const t = anchor.get(targetId);
       if (!t) continue;
@@ -120,23 +165,27 @@ export default function Bracket({ data }: { data: WorldCupData }) {
         .filter((a): a is NonNullable<typeof a> => Boolean(a));
       if (sources.length === 0) continue;
 
-      // Midpoint X in the gap between the source column and the target column.
-      const midX = (sources[0].right + t.left) / 2;
+      const tc = centerX(t);
+      // Feeders left of the target connect to its left edge; feeders right of
+      // it (mirrored split half) connect to its right edge. Each side gets its
+      // own H-stub / vertical-bus / H-into-target run.
+      const left = sources.filter((s) => centerX(s) <= tc);
+      const right = sources.filter((s) => centerX(s) > tc);
 
-      // Horizontal stub out of each source, at its divider line.
-      for (const s of sources) {
-        next.push({ x1: s.right, y1: s.y, x2: midX, y2: s.y });
+      if (left.length) {
+        const midX = (Math.max(...left.map((s) => s.right)) + t.left) / 2;
+        for (const s of left) next.push({ x1: s.right, y1: s.y, x2: midX, y2: s.y });
+        const ys = left.map((s) => s.y).concat(t.y);
+        next.push({ x1: midX, y1: Math.min(...ys), x2: midX, y2: Math.max(...ys) });
+        next.push({ x1: midX, y1: t.y, x2: t.left, y2: t.y });
       }
-      // Vertical bus joining the sources (and reaching the target's divider Y).
-      const ys = sources.map((s) => s.y).concat(t.y);
-      next.push({
-        x1: midX,
-        y1: Math.min(...ys),
-        x2: midX,
-        y2: Math.max(...ys),
-      });
-      // Horizontal into the target, at its divider line.
-      next.push({ x1: midX, y1: t.y, x2: t.left, y2: t.y });
+      if (right.length) {
+        const midX = (Math.min(...right.map((s) => s.left)) + t.right) / 2;
+        for (const s of right) next.push({ x1: s.left, y1: s.y, x2: midX, y2: s.y });
+        const ys = right.map((s) => s.y).concat(t.y);
+        next.push({ x1: midX, y1: Math.min(...ys), x2: midX, y2: Math.max(...ys) });
+        next.push({ x1: midX, y1: t.y, x2: t.right, y2: t.y });
+      }
     }
 
     setSegs(next);
@@ -148,7 +197,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     computeConnectors();
     const raf = requestAnimationFrame(computeConnectors);
     return () => cancelAnimationFrame(raf);
-  }, [computeConnectors, data, fit]);
+  }, [computeConnectors, data, fit, split]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -271,6 +320,23 @@ export default function Bracket({ data }: { data: WorldCupData }) {
           </span>
         )}
 
+        {/* Layout direction toggle — split/converging vs. linear. Fit only. */}
+        {fit && (
+          <button
+            onClick={() => setSplit((s) => !s)}
+            aria-label={split ? "Linear layout" : "Converging layout"}
+            title={split ? "Linear (left to right)" : "Converging (split)"}
+            className="flex shrink-0 items-center justify-center rounded-full bg-white/10 px-3 py-2 text-white/80 transition-colors hover:bg-white/15"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={split ? "/left-view.svg" : "/left-right-view.svg"}
+              alt=""
+              className="h-3.5 w-auto"
+            />
+          </button>
+        )}
+
         <button
           onClick={toggleFit}
           aria-label={fit ? "Expand bracket" : "Fit whole bracket"}
@@ -316,15 +382,25 @@ export default function Bracket({ data }: { data: WorldCupData }) {
           </svg>
         )}
 
-        {ROUNDS.map((r) => (
-          <BracketRound
-            key={r.key}
-            round={r}
-            matches={byRound.get(r.key) ?? []}
-            placeholders={placeholders}
-            compact={fit}
-          />
-        ))}
+        {fit && split
+          ? splitColumns.map((col) => (
+              <BracketRound
+                key={col.id}
+                round={col.round}
+                matches={col.matches}
+                placeholders={placeholders}
+                compact
+              />
+            ))
+          : ROUNDS.map((r) => (
+              <BracketRound
+                key={r.key}
+                round={r}
+                matches={byRound.get(r.key) ?? []}
+                placeholders={placeholders}
+                compact={fit}
+              />
+            ))}
       </div>
 
       {/* Third-place playoff — standalone, not wired into the tree */}
