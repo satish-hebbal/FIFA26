@@ -243,7 +243,7 @@ export default function FeaturedMatch({
                 src={match.home.crest}
                 alt=""
                 aria-hidden="true"
-                className="absolute left-0 top-1/2 h-[340%] w-3/5 -translate-y-1/2 object-cover opacity-45 blur-2xl"
+                className="absolute -left-2 top-1/2 h-[340%] w-2/5 -translate-y-1/2 object-cover opacity-60 blur-2xl"
               />
             )}
             {match.away?.crest && (
@@ -252,10 +252,17 @@ export default function FeaturedMatch({
                 src={match.away.crest}
                 alt=""
                 aria-hidden="true"
-                className="absolute right-0 top-1/2 h-[340%] w-3/5 -translate-y-1/2 object-cover opacity-45 blur-2xl"
+                className="absolute -right-2 top-1/2 h-[340%] w-2/5 -translate-y-1/2 object-cover opacity-60 blur-2xl"
               />
             )}
-            <div className="absolute inset-0 bg-black/25" />
+            {/* darken the centre so the colour only reads at the two ends */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.55) 62%, rgba(0,0,0,0) 100%)",
+              }}
+            />
           </div>
           {/* clip shape (objectBoundingBox so it scales to the box) */}
           <svg className="absolute h-0 w-0" aria-hidden="true">
