@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/* ---- Design tokens (CBS Golazo World Cup 2026 north star) ---- */
+@theme {
+  --color-board-900: #0a1f6b; /* deepest royal blue */
+  --color-board-800: #0e2a8c;
+  --color-board-700: #1538b0;
+  --color-board-600: #1d47d6;
+  --color-gold-400: #ffd23f; /* score-tab gold */
+  --color-gold-500: #f5b800;
+  --color-plate: #ffffff;
+  --color-plate-ink: #0b1736;
+  --color-accent: #16d3a8; /* live / advancement accent */
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: #eaf0ff;
+  background:
+    radial-gradient(
+      120% 90% at 72% 38%,
+      rgba(46, 96, 255, 0.55) 0%,
+      rgba(14, 42, 140, 0) 60%
+    ),
+    radial-gradient(
+      100% 120% at 0% 0%,
+      rgba(8, 22, 80, 0.9) 0%,
+      rgba(8, 22, 80, 0) 55%
+    ),
+    linear-gradient(180deg, #0a1f6b 0%, #081654 100%);
+  background-attachment: fixed;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The bracket board glow card */
+.board-surface {
+  background:
+    radial-gradient(
+      90% 70% at 70% 45%,
+      rgba(73, 120, 255, 0.35) 0%,
+      rgba(13, 40, 130, 0) 65%
+    ),
+    linear-gradient(160deg, rgba(20, 56, 176, 0.45), rgba(8, 22, 80, 0.55));
+  border: 1px solid rgba(120, 160, 255, 0.18);
+}
+
+/* Hide scrollbar but keep scrollability for the bracket canvas */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Live pulse */
+@keyframes live-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 211, 168, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(22, 211, 168, 0);
+  }
+}
+.live-dot {
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.soft-pulse {
+  animation: soft-pulse 1.6s ease-in-out infinite;
+}
