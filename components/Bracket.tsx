@@ -146,37 +146,57 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     };
   }, [computeConnectors]);
 
-  // Sync the active chip with whichever column is centered in the canvas.
+  // Ignore scroll-driven active-chip updates until this time (set while a
+  // tap-triggered smooth scroll is animating, so intermediate columns the view
+  // passes through don't flicker the chips).
+  const lockUntil = useRef(0);
+
+  // Active chip = the round column whose center is closest to the viewport
+  // center. Stable (no threshold thrash) and only runs when not locked.
+  const updateActiveFromScroll = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || fit) return;
+    if (Date.now() < lockUntil.current) return;
+    const viewCenter = canvas.scrollLeft + canvas.clientWidth / 2;
+    let bestKey: string = ROUNDS[0].key;
+    let bestDist = Infinity;
+    canvas.querySelectorAll<HTMLElement>("[data-round]").forEach((node) => {
+      const center = node.offsetLeft + node.offsetWidth / 2;
+      const dist = Math.abs(center - viewCenter);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestKey = node.getAttribute("data-round") ?? bestKey;
+      }
+    });
+    setActiveRound((prev) => (prev === bestKey ? prev : bestKey));
+  }, [fit]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const sections = Array.from(
-      canvas.querySelectorAll<HTMLElement>("[data-round]")
-    );
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) {
-          const key = visible.target.getAttribute("data-round");
-          if (key) setActiveRound(key);
-        }
-      },
-      { root: canvas, threshold: [0.4, 0.6, 0.8] }
-    );
-    sections.forEach((s) => observer.observe(s));
-    return () => observer.disconnect();
-  }, [byRound]);
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(updateActiveFromScroll);
+    };
+    canvas.addEventListener("scroll", onScroll, { passive: true });
+    updateActiveFromScroll();
+    return () => {
+      canvas.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [updateActiveFromScroll]);
 
   const scrollToRound = (key: string) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const target = canvas.querySelector<HTMLElement>(`[data-round="${key}"]`);
-    if (target) {
-      canvas.scrollTo({ left: target.offsetLeft - 8, behavior: "smooth" });
-      setActiveRound(key);
-    }
+    if (!target) return;
+    // Lock out scroll updates for the duration of the smooth scroll, and set
+    // the active chip immediately so the tap feels instant.
+    lockUntil.current = Date.now() + 700;
+    setActiveRound(key);
+    canvas.scrollTo({ left: target.offsetLeft - 8, behavior: "smooth" });
   };
 
   return (
