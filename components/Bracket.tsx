@@ -13,11 +13,31 @@ interface Seg {
   y2: number;
 }
 
+function FitIcon() {
+  // inward arrows (compress)
+  return (
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 4v3a2 2 0 0 1-2 2H4M15 4v3a2 2 0 0 0 2 2h3M9 20v-3a2 2 0 0 0-2-2H4M15 20v-3a2 2 0 0 1 2-2h3" />
+    </svg>
+  );
+}
+
+function ExpandIcon() {
+  // outward arrows (expand)
+  return (
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 9V6a2 2 0 0 1 2-2h3M20 9V6a2 2 0 0 0-2-2h-3M4 15v3a2 2 0 0 0 2 2h3M20 15v3a2 2 0 0 1-2 2h-3" />
+    </svg>
+  );
+}
+
 export default function Bracket({ data }: { data: WorldCupData }) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [activeRound, setActiveRound] = useState<string>(ROUNDS[0].key);
   const [segs, setSegs] = useState<Seg[]>([]);
   const [svgSize, setSvgSize] = useState({ w: 0, h: 0 });
+  // "fit" = condense all rounds into one frame (compact nodes, no h-scroll).
+  const [fit, setFit] = useState(false);
 
   const placeholders = useMemo(
     () => buildPlaceholders(data.bracket),
@@ -111,7 +131,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     computeConnectors();
     const raf = requestAnimationFrame(computeConnectors);
     return () => cancelAnimationFrame(raf);
-  }, [computeConnectors, data]);
+  }, [computeConnectors, data, fit]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -161,32 +181,55 @@ export default function Bracket({ data }: { data: WorldCupData }) {
 
   return (
     <section className="board-surface rounded-2xl p-3 sm:p-4">
-      {/* Round selector chips */}
-      <div className="mb-3 flex gap-1.5 overflow-x-auto no-scrollbar">
-        {ROUNDS.map((r) => {
-          const active = r.key === activeRound;
-          return (
-            <button
-              key={r.key}
-              onClick={() => scrollToRound(r.key)}
-              className={[
-                "shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition-colors",
-                active
-                  ? "bg-gold-400 text-plate-ink"
-                  : "bg-white/10 text-white/70 hover:bg-white/15",
-              ].join(" ")}
-            >
-              {r.chip}
-            </button>
-          );
-        })}
+      {/* Round selector chips + fit/expand toggle */}
+      <div className="mb-3 flex items-center gap-2">
+        {!fit ? (
+          <div className="flex flex-1 gap-1.5 overflow-x-auto no-scrollbar">
+            {ROUNDS.map((r) => {
+              const active = r.key === activeRound;
+              return (
+                <button
+                  key={r.key}
+                  onClick={() => scrollToRound(r.key)}
+                  className={[
+                    "shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition-colors",
+                    active
+                      ? "bg-gold-400 text-plate-ink"
+                      : "bg-white/10 text-white/70 hover:bg-white/15",
+                  ].join(" ")}
+                >
+                  {r.chip}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <span className="flex-1 text-xs font-bold uppercase tracking-[0.18em] text-white/55">
+            Full bracket
+          </span>
+        )}
+
+        <button
+          onClick={() => setFit((f) => !f)}
+          aria-label={fit ? "Expand bracket" : "Fit whole bracket"}
+          title={fit ? "Expand" : "Fit to screen"}
+          className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white/80 transition-colors hover:bg-white/15"
+        >
+          {fit ? <ExpandIcon /> : <FitIcon />}
+          <span className="hidden sm:inline">{fit ? "Expand" : "Fit"}</span>
+        </button>
       </div>
 
-      {/* Horizontally pan/scroll-snapping canvas of round columns */}
+      {/* Round columns: horizontally scroll-snapping (normal) or fit-to-frame (compact) */}
       <div
         ref={canvasRef}
-        className="no-scrollbar relative flex snap-x snap-mandatory overflow-x-auto scroll-smooth pb-2"
-        style={{ scrollPaddingLeft: 8 }}
+        className={[
+          "no-scrollbar relative flex pb-2",
+          fit
+            ? "gap-0.5 overflow-hidden"
+            : "snap-x snap-mandatory overflow-x-auto scroll-smooth",
+        ].join(" ")}
+        style={fit ? undefined : { scrollPaddingLeft: 8 }}
       >
         {/* Connector overlay — sits behind the cards (z-0). */}
         {svgSize.w > 0 && (
@@ -217,6 +260,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
             round={r}
             matches={byRound.get(r.key) ?? []}
             placeholders={placeholders}
+            compact={fit}
           />
         ))}
       </div>

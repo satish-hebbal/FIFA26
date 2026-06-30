@@ -22,10 +22,12 @@ export default function BracketRound({
   round,
   matches,
   placeholders,
+  compact = false,
 }: {
   round: RoundMeta;
   matches: BracketMatch[];
   placeholders: Map<string, { home: string | null; away: string | null }>;
+  compact?: boolean;
 }) {
   const isFinal = round.key === "FINAL";
   const champion = isFinal ? championOf(matches[0]) : null;
@@ -33,13 +35,25 @@ export default function BracketRound({
   return (
     <section
       data-round={round.key}
-      className="relative z-10 flex w-[224px] shrink-0 snap-start flex-col gap-3 px-2 sm:w-[248px]"
+      className={[
+        "relative z-10 flex flex-col",
+        compact
+          ? "min-w-0 flex-1 gap-1 px-0.5"
+          : "w-[224px] shrink-0 snap-start gap-3 px-2 sm:w-[248px]",
+      ].join(" ")}
     >
-      <h2 className="sticky top-0 z-10 -mx-2 mb-1 bg-board-900/30 px-3 py-1.5 text-center text-xs font-bold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">
-        {round.label}
+      <h2
+        className={[
+          "sticky top-0 z-10 mb-1 bg-board-900/30 text-center font-bold uppercase tracking-[0.12em] text-white/80 backdrop-blur-sm",
+          compact
+            ? "rounded px-1 py-1 text-[9px]"
+            : "-mx-2 px-3 py-1.5 text-xs tracking-[0.18em]",
+        ].join(" ")}
+      >
+        {compact ? round.chip : round.label}
       </h2>
 
-      {isFinal && (
+      {isFinal && !compact && (
         <div className="mb-1 flex flex-col items-center gap-2 text-gold-400">
           <Trophy className="h-12 w-12 drop-shadow-[0_2px_8px_rgba(255,210,63,0.35)]" />
           {champion ? (
@@ -59,10 +73,28 @@ export default function BracketRound({
         </div>
       )}
 
-      <div className="flex flex-1 flex-col justify-around gap-3">
+      {isFinal && compact && champion && (
+        <div className="mb-1 flex items-center justify-center gap-1 text-gold-400">
+          <Trophy className="h-4 w-4" />
+          <span className="truncate text-[10px] font-extrabold text-white">
+            {champion.short}
+          </span>
+        </div>
+      )}
+
+      <div
+        className={[
+          "flex flex-1 flex-col justify-around",
+          compact ? "gap-1" : "gap-3",
+        ].join(" ")}
+      >
         {matches.map((m) => (
           <div key={m.id} className="flex justify-center">
-            <MatchNode match={m} placeholders={placeholders.get(m.id)} />
+            <MatchNode
+              match={m}
+              placeholders={placeholders.get(m.id)}
+              compact={compact}
+            />
           </div>
         ))}
       </div>

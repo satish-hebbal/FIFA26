@@ -150,17 +150,126 @@ function PenaltyShootout({
   );
 }
 
-export default function MatchNode({
+function shortPlaceholder(p: string | null): string {
+  // "Winner M9" -> "M9"
+  return p ? p.replace(/^Winner\s+/i, "") : "·";
+}
+
+function CompactRow({
+  team,
+  placeholder,
+  score,
+  won,
+  dim,
+}: {
+  team: TeamRef | null;
+  placeholder: string | null;
+  score: number | null;
+  won: boolean;
+  dim: boolean;
+}) {
+  return (
+    <div className={["flex items-center gap-1 px-1.5 py-1", dim ? "opacity-55" : ""].join(" ")}>
+      {team?.crest ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={team.crest}
+          alt=""
+          width={12}
+          height={12}
+          className="h-3 w-3 shrink-0 rounded-[2px] object-contain"
+          loading="lazy"
+        />
+      ) : (
+        <span className="h-3 w-3 shrink-0 rounded-[2px] bg-board-700/15" />
+      )}
+      <span
+        className={[
+          "min-w-0 flex-1 truncate text-[10px] leading-tight",
+          team ? "text-plate-ink" : "italic text-plate-ink/45",
+          won ? "font-extrabold" : "font-semibold",
+        ].join(" ")}
+      >
+        {team?.short ?? shortPlaceholder(placeholder)}
+      </span>
+      <span
+        className={[
+          "shrink-0 text-[10px] font-extrabold tabular-nums",
+          won ? "text-plate-ink" : "text-plate-ink/70",
+        ].join(" ")}
+      >
+        {score ?? ""}
+      </span>
+    </div>
+  );
+}
+
+function CompactNode({
   match,
   placeholders,
+  live,
+  homeWon,
+  awayWon,
 }: {
   match: BracketMatch;
   placeholders?: { home: string | null; away: string | null };
+  live: boolean;
+  homeWon: boolean;
+  awayWon: boolean;
+}) {
+  return (
+    <div
+      data-match-id={match.id}
+      className={[
+        "w-full overflow-hidden rounded-md bg-plate ring-1",
+        live ? "ring-2 ring-accent" : "ring-black/5",
+      ].join(" ")}
+    >
+      <CompactRow
+        team={match.home}
+        placeholder={placeholders?.home ?? null}
+        score={match.homeScore}
+        won={homeWon}
+        dim={awayWon}
+      />
+      <div data-divider className="h-px bg-board-900/10" />
+      <CompactRow
+        team={match.away}
+        placeholder={placeholders?.away ?? null}
+        score={match.awayScore}
+        won={awayWon}
+        dim={homeWon}
+      />
+    </div>
+  );
+}
+
+export default function MatchNode({
+  match,
+  placeholders,
+  compact = false,
+}: {
+  match: BracketMatch;
+  placeholders?: { home: string | null; away: string | null };
+  compact?: boolean;
 }) {
   const live = match.status === "LIVE";
   const finished = match.status === "FINISHED";
   const homeWon = finished && match.winner === "HOME";
   const awayWon = finished && match.winner === "AWAY";
+
+  if (compact) {
+    return (
+      <CompactNode
+        match={match}
+        placeholders={placeholders}
+        live={live}
+        homeWon={homeWon}
+        awayWon={awayWon}
+      />
+    );
+  }
+
   const pens =
     match.decidedBy === "PENS" &&
     match.penHome != null &&
