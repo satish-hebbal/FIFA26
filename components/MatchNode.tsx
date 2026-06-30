@@ -210,19 +210,28 @@ function CompactNode({
   live,
   homeWon,
   awayWon,
+  gold,
 }: {
   match: BracketMatch;
   placeholders?: { home: string | null; away: string | null };
   live: boolean;
   homeWon: boolean;
   awayWon: boolean;
+  gold: boolean;
 }) {
   return (
     <div
       data-match-id={match.id}
       className={[
-        "w-full overflow-hidden rounded-md bg-plate ring-1",
-        live ? "ring-2 ring-accent" : "ring-black/5",
+        "w-full overflow-hidden rounded-md ring-1",
+        gold
+          ? "bg-[linear-gradient(160deg,#fffdf5,#ffe7a8)]"
+          : "bg-plate",
+        live
+          ? "ring-2 ring-accent"
+          : gold
+          ? "ring-gold-400"
+          : "ring-black/5",
       ].join(" ")}
     >
       <CompactRow
@@ -232,7 +241,10 @@ function CompactNode({
         won={homeWon}
         dim={awayWon}
       />
-      <div data-divider className="h-px bg-board-900/10" />
+      <div
+        data-divider
+        className={["h-px", gold ? "bg-gold-600/25" : "bg-board-900/10"].join(" ")}
+      />
       <CompactRow
         team={match.away}
         placeholder={placeholders?.away ?? null}
@@ -257,6 +269,8 @@ export default function MatchNode({
   const finished = match.status === "FINISHED";
   const homeWon = finished && match.winner === "HOME";
   const awayWon = finished && match.winner === "AWAY";
+  // The Final gets a golden theme to set it apart.
+  const gold = match.round === "FINAL";
 
   if (compact) {
     return (
@@ -266,6 +280,7 @@ export default function MatchNode({
         live={live}
         homeWon={homeWon}
         awayWon={awayWon}
+        gold={gold}
       />
     );
   }
@@ -286,9 +301,14 @@ export default function MatchNode({
     <div
       data-match-id={match.id}
       className={[
-        "w-[200px] overflow-hidden rounded-xl bg-plate shadow-md ring-1",
+        "w-[200px] overflow-hidden rounded-xl shadow-md ring-1",
+        gold
+          ? "bg-[linear-gradient(160deg,#fffdf5,#ffe7a8)] shadow-[0_4px_18px_rgba(255,200,40,0.35)]"
+          : "bg-plate",
         live
           ? "ring-2 ring-accent live-dot"
+          : gold
+          ? "ring-gold-400"
           : "ring-black/5",
       ].join(" ")}
     >
@@ -299,7 +319,10 @@ export default function MatchNode({
         emphasis={homeWon}
         dim={awayWon}
       />
-      <div data-divider className="h-px bg-board-900/10" />
+      <div
+        data-divider
+        className={["h-px", gold ? "bg-gold-600/25" : "bg-board-900/10"].join(" ")}
+      />
       <TeamPlate
         team={match.away}
         placeholder={placeholders?.away ?? null}

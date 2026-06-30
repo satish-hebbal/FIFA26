@@ -249,11 +249,11 @@ export default function FeaturedMatch({
               <div className="flex items-center justify-center gap-3 sm:gap-4">
                 <span
                   className={[
-                    "w-12 text-right text-[13px] font-bold uppercase",
-                    homeWon ? "text-gold-400" : "text-white/70",
+                    "min-w-0 flex-1 truncate text-right text-[13px] font-bold",
+                    homeWon ? "text-gold-400" : "text-white/75",
                   ].join(" ")}
                 >
-                  {match.home?.short ?? "—"}
+                  {match.home?.name ?? match.home?.short ?? "—"}
                 </span>
                 <span className="text-3xl font-black tabular-nums text-white sm:text-4xl">
                   {match.homeScore ?? 0}
@@ -264,11 +264,11 @@ export default function FeaturedMatch({
                 </span>
                 <span
                   className={[
-                    "w-12 text-left text-[13px] font-bold uppercase",
-                    awayWon ? "text-gold-400" : "text-white/70",
+                    "min-w-0 flex-1 truncate text-left text-[13px] font-bold",
+                    awayWon ? "text-gold-400" : "text-white/75",
                   ].join(" ")}
                 >
-                  {match.away?.short ?? "—"}
+                  {match.away?.name ?? match.away?.short ?? "—"}
                 </span>
               </div>
               {pens && (
