@@ -431,13 +431,16 @@ export default function Bracket({ data }: { data: WorldCupData }) {
             ))}
       </div>
 
-      {/* Third-place playoff — standalone, not wired into the tree */}
+      {/* Third-place playoff — standalone, not wired into the tree. Kept small
+          and understated (compact node) so it doesn't compete with the tree. */}
       {data.thirdPlace && (
-        <div className="mt-4 flex flex-col items-center gap-2 border-t border-white/10 pt-4">
-          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/55">
+        <div className="mt-4 flex flex-col items-center gap-1.5 border-t border-white/10 pt-3">
+          <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/40">
             3rd Place Playoff
           </span>
-          <MatchNode match={data.thirdPlace} />
+          <div className="w-[150px]">
+            <MatchNode match={data.thirdPlace} compact />
+          </div>
         </div>
       )}
     </section>
