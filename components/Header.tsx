@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { BracketMatch, WorldCupData } from "@/lib/types";
+import type { BracketMatch } from "@/lib/types";
 
 function formatCountdown(kickoffIso: string, now: number): string {
   const diff = new Date(kickoffIso).getTime() - now;
@@ -65,14 +65,10 @@ function TeamTag({ team }: { team: BracketMatch["home"] }) {
 }
 
 export default function Header({
-  data,
   nextMatch,
 }: {
-  data: WorldCupData | null;
   nextMatch: BracketMatch | null;
 }) {
-  const anyLive = data?.anyLive ?? false;
-
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
       <div className="flex shrink-0 items-center gap-2">
@@ -84,13 +80,7 @@ export default function Header({
       </div>
 
       <div className="flex min-w-0 items-center gap-2">
-        {anyLive ? (
-          <span className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-accent/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-accent">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/ball.png" alt="" className="spin-ball h-3 w-3" />
-            Live
-          </span>
-        ) : nextMatch ? (
+        {nextMatch ? (
           <NextMatchPill next={nextMatch} />
         ) : (
           <span className="whitespace-nowrap rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/60">

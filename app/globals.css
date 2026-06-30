@@ -172,11 +172,6 @@ body::before {
   animation: spin-ball 2.4s linear infinite;
 }
 
-/* Scoreboard plinth: trapezoid that's wider at the bottom than the top. */
-.scoreboard-trapezoid {
-  clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%);
-}
-
 /* Champion cup backdrop: the cup-image.png sitting behind the Final card,
    with a soft gold glow that gently breathes. */
 .cup-backdrop {

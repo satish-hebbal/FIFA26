@@ -15,7 +15,7 @@ export default function Dashboard({ initial }: { initial: WorldCupData }) {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 py-4 sm:px-5 sm:py-6">
-      <Header data={current} nextMatch={nextMatch} />
+      <Header nextMatch={nextMatch} />
       <LiveScores data={current} />
       <Bracket data={current} />
       <footer className="flex flex-col gap-2 pt-1 text-[11px] text-white/40 sm:flex-row sm:items-center sm:justify-between">

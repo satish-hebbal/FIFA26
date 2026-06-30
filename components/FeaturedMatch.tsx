@@ -228,8 +228,22 @@ export default function FeaturedMatch({
           </div>
         </div>
 
-        {/* scoreboard — trapezoid plinth flush to the bottom of the pitch */}
-        <div className="scoreboard-trapezoid bg-black/50 px-7 pb-4 pt-3 backdrop-blur-md">
+        {/* scoreboard — trapezoid plinth flush to the bottom of the pitch.
+            Drawn as an SVG (above the pitch, doesn't resize it) so the top
+            corners can be softly rounded. */}
+        <div className="relative px-7 pb-4 pt-3.5">
+          <svg
+            className="absolute inset-0 -z-0 h-full w-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M8.5 0 L91.5 0 Q94 0 95 17 L100 100 L0 100 L5 17 Q6 0 8.5 0 Z"
+              fill="rgba(0,0,0,0.5)"
+            />
+          </svg>
+          <div className="relative">
           {showScore ? (
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center justify-center gap-3 sm:gap-4">
@@ -291,6 +305,7 @@ export default function FeaturedMatch({
               )}
             </div>
           )}
+          </div>
         </div>
       </div>
     </section>
