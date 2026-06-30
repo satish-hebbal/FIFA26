@@ -27,7 +27,7 @@ function NextMatchPill({ next }: { next: BracketMatch }) {
 
   return (
     <span
-      className="flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/70"
+      className="flex max-w-full items-center gap-1.5 whitespace-nowrap rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/70"
       suppressHydrationWarning
     >
       <span className="text-gold-400/90">Next</span>
@@ -74,25 +74,25 @@ export default function Header({
   const anyLive = data?.anyLive ?? false;
 
   return (
-    <header className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2">
+    <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+      <div className="flex shrink-0 items-center gap-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/cup.svg" alt="" width={20} height={20} className="h-5 w-5" />
-        <h1 className="text-base font-extrabold leading-tight tracking-tight text-white sm:text-lg">
+        <h1 className="whitespace-nowrap text-base font-extrabold leading-tight tracking-tight text-white sm:text-lg">
           FIFA World Cup <span className="text-gold-400">2026</span>
         </h1>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         {anyLive ? (
-          <span className="flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-accent">
+          <span className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-accent/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-accent">
             <span className="live-dot h-2 w-2 rounded-full bg-accent" />
             Live
           </span>
         ) : nextMatch ? (
           <NextMatchPill next={nextMatch} />
         ) : (
-          <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/60">
+          <span className="whitespace-nowrap rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/60">
             Knockouts
           </span>
         )}

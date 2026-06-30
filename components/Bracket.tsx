@@ -234,7 +234,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
     // the active chip immediately so the tap feels instant.
     lockUntil.current = Date.now() + 700;
     setActiveRound(key);
-    canvas.scrollTo({ left: target.offsetLeft - 8, behavior: "smooth" });
+    canvas.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
   };
 
   return (
