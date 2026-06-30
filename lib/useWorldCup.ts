@@ -32,17 +32,29 @@ export function useWorldCup(initial: WorldCupData | null = null): UseWorldCup {
 
   const load = useCallback(async () => {
     setRefreshing(true);
+    // Abort a hung request so a slow/dropped poll fails cleanly instead of
+    // piling up behind the next interval tick.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12_000);
     try {
-      const res = await fetch("/api/worldcup", { cache: "no-store" });
+      const res = await fetch("/api/worldcup", {
+        cache: "no-store",
+        signal: controller.signal,
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = (await res.json()) as WorldCupData;
       if (!mounted.current) return;
       setData(json);
       setLastUpdated(new Date());
     } catch (err) {
-      // Keep the last good state on screen; log and move on.
-      console.error("[useWorldCup] poll failed:", err);
+      // A failed poll is expected and tolerated — the last good state stays on
+      // screen and the next tick retries. Use warn (not error) so React/Next's
+      // dev error overlay doesn't surface a transient blip as a crash.
+      if (mounted.current) {
+        console.warn("[useWorldCup] poll skipped (will retry):", err);
+      }
     } finally {
+      clearTimeout(timeout);
       if (mounted.current) {
         setLoading(false);
         setRefreshing(false);
