@@ -249,7 +249,7 @@ export default function FeaturedMatch({
               <div className="flex items-center justify-center gap-3 sm:gap-4">
                 <span
                   className={[
-                    "min-w-0 flex-1 truncate text-right text-[13px] font-bold",
+                    "min-w-0 flex-1 text-right text-[13px] font-bold leading-tight",
                     homeWon ? "text-gold-400" : "text-white/75",
                   ].join(" ")}
                 >
@@ -264,7 +264,7 @@ export default function FeaturedMatch({
                 </span>
                 <span
                   className={[
-                    "min-w-0 flex-1 truncate text-left text-[13px] font-bold",
+                    "min-w-0 flex-1 text-left text-[13px] font-bold leading-tight",
                     awayWon ? "text-gold-400" : "text-white/75",
                   ].join(" ")}
                 >

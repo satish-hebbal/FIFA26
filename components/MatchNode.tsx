@@ -228,7 +228,7 @@ function CompactNode({
           ? "bg-[linear-gradient(160deg,#fffdf5,#ffe7a8)]"
           : "bg-plate",
         live
-          ? "ring-2 ring-accent"
+          ? "ring-2 ring-accent live-card"
           : gold
           ? "ring-gold-400"
           : "ring-black/5",
@@ -306,7 +306,7 @@ export default function MatchNode({
           ? "bg-[linear-gradient(160deg,#fffdf5,#ffe7a8)] shadow-[0_4px_18px_rgba(255,200,40,0.35)]"
           : "bg-plate",
         live
-          ? "ring-2 ring-accent live-dot"
+          ? "ring-2 ring-accent live-card"
           : gold
           ? "ring-gold-400"
           : "ring-black/5",
@@ -344,9 +344,9 @@ export default function MatchNode({
       {!pens && (live || tag || kickoff) && (
         <div className="flex items-center justify-between bg-board-900/[0.04] px-2 py-1">
           {live ? (
-            <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-accent">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              {match.status === "LIVE" ? "Live" : ""}
+            <span className="flex items-center gap-1 rounded-full bg-accent/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent">
+              <span className="live-dot h-1.5 w-1.5 rounded-full bg-accent" />
+              Live
             </span>
           ) : kickoff ? (
             <span

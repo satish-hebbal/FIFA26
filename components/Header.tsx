@@ -27,18 +27,20 @@ function NextMatchPill({ next }: { next: BracketMatch }) {
 
   return (
     <span
-      className="flex max-w-full items-center gap-1.5 whitespace-nowrap rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/70"
+      className="flex w-full items-center justify-between gap-2 whitespace-nowrap rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-white/70"
       suppressHydrationWarning
     >
-      <span className="text-gold-400/90">Next</span>
-      <span className="flex items-center gap-1 text-white/85">
-        <TeamTag team={next.home} />
-        <span className="text-white/45">v</span>
-        <TeamTag team={next.away} />
+      <span className="flex min-w-0 items-center gap-1.5">
+        <span className="text-gold-400/90">Next</span>
+        <span className="flex items-center gap-1 text-white/85">
+          <TeamTag team={next.home} />
+          <span className="text-white/45">v</span>
+          <TeamTag team={next.away} />
+        </span>
       </span>
       {now !== null && next.kickoff && (
-        <span className="text-white/55">
-          · {formatCountdown(next.kickoff, now)}
+        <span className="shrink-0 text-white/55">
+          {formatCountdown(next.kickoff, now)}
         </span>
       )}
     </span>
@@ -79,11 +81,11 @@ export default function Header({
         </h1>
       </div>
 
-      <div className="flex min-w-0 items-center gap-2">
+      <div className="w-full">
         {nextMatch ? (
           <NextMatchPill next={nextMatch} />
         ) : (
-          <span className="whitespace-nowrap rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/60">
+          <span className="inline-flex whitespace-nowrap rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/60">
             Knockouts
           </span>
         )}
