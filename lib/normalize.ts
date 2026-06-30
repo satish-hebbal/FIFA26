@@ -14,6 +14,7 @@ import type {
 const FALLBACK = fallbackData as unknown as WorldCupData & {
   bracket: BracketMatch[];
   thirdPlace: BracketMatch | null;
+  _meta?: { feedsLosersInto?: Record<string, string> };
 };
 
 const STAGE_TO_ROUND: Record<RawStage, Round | null> = {
@@ -25,6 +26,15 @@ const STAGE_TO_ROUND: Record<RawStage, Round | null> = {
   THIRD_PLACE: "THIRD_PLACE",
   FINAL: "FINAL",
 };
+
+// Process order so winners from one round become hints for the next.
+const ROUND_ORDER: Exclude<Round, "THIRD_PLACE">[] = [
+  "R32",
+  "R16",
+  "QF",
+  "SF",
+  "FINAL",
+];
 
 function mapStatus(raw: RawMatch["status"]): BracketMatch["status"] {
   if (raw === "IN_PLAY" || raw === "PAUSED") return "LIVE";
@@ -56,12 +66,17 @@ function toTeamRef(raw: RawTeam | null | undefined): TeamRef | null {
   };
 }
 
-/** Stable key for matching an R32 pairing regardless of home/away orientation. */
-function teamPairKey(a: string | null, b: string | null): string {
-  return [a, b]
-    .map((s) => (s ?? "").toUpperCase().trim())
-    .sort()
-    .join("|");
+function teamShort(t: TeamRef | null): string | null {
+  return t ? (t.short || "").toUpperCase().trim() || null : null;
+}
+
+function rawShort(t: RawTeam | null | undefined): string | null {
+  if (!t) return null;
+  return (t.tla || t.shortName || t.name || "").toUpperCase().trim() || null;
+}
+
+function pairKey(a: string | null, b: string | null): string {
+  return [a, b].map((s) => s ?? "").sort().join("|");
 }
 
 function deepCloneMatch(m: BracketMatch): BracketMatch {
@@ -72,12 +87,24 @@ function deepCloneMatch(m: BracketMatch): BracketMatch {
   };
 }
 
-/** Apply a raw API match's live state onto a skeleton match, in place. */
+/**
+ * Apply a raw API match onto a skeleton match. API teams are authoritative and
+ * overwrite any propagated hints; a side the API leaves unresolved keeps its
+ * propagated hint. Guards against the same team landing in both slots if the
+ * API's home/away orientation differs from the propagated one.
+ */
 function applyRaw(target: BracketMatch, raw: RawMatch): void {
-  const apiHome = toTeamRef(raw.homeTeam);
-  const apiAway = toTeamRef(raw.awayTeam);
-  if (apiHome) target.home = apiHome;
-  if (apiAway) target.away = apiAway;
+  const h = toTeamRef(raw.homeTeam);
+  const a = toTeamRef(raw.awayTeam);
+
+  if (h) {
+    if (teamShort(target.away) === teamShort(h)) target.away = null;
+    target.home = h;
+  }
+  if (a) {
+    if (teamShort(target.home) === teamShort(a)) target.home = null;
+    target.away = a;
+  }
 
   target.status = mapStatus(raw.status);
   target.kickoff = raw.utcDate ?? target.kickoff;
@@ -110,19 +137,100 @@ function losingTeam(m: BracketMatch): TeamRef | null {
 }
 
 /**
- * Merge live API results onto the fixed bracket skeleton.
- *
- * - R32 matches are matched by team pair (skeleton ships real pairings).
- * - Deeper rounds are matched positionally (by slot order within the round),
- *   since their teams are unknown until results arrive.
- * - After merging, winners are propagated into the next round's empty slots so
- *   the tree visibly "fills up" even before the API publishes those fixtures.
+ * Match the API matches of one round to the round's skeleton slots, then apply
+ * scores/results. Matching is by team identity (robust against API ordering):
+ *   1. both teams known → exact pair match
+ *   2. one team known   → single-team match
+ *   3. leftovers        → positional (by kickoff) — only hits all-unknown slots
+ */
+function matchRound(skeletons: BracketMatch[], raws: RawMatch[]): void {
+  const pool = raws.slice();
+  const matched = new Set<string>();
+
+  const take = (pred: (r: RawMatch) => boolean): RawMatch | null => {
+    const i = pool.findIndex(pred);
+    if (i >= 0) return pool.splice(i, 1)[0];
+    return null;
+  };
+
+  // Pass 1: both teams known → pair match
+  for (const sk of skeletons) {
+    if (sk.home && sk.away) {
+      const key = pairKey(teamShort(sk.home), teamShort(sk.away));
+      const r = take(
+        (x) => pairKey(rawShort(x.homeTeam), rawShort(x.awayTeam)) === key
+      );
+      if (r) {
+        applyRaw(sk, r);
+        matched.add(sk.id);
+      }
+    }
+  }
+
+  // Pass 2: one team known → single-team match
+  for (const sk of skeletons) {
+    if (matched.has(sk.id)) continue;
+    const known = teamShort(sk.home) ?? teamShort(sk.away);
+    if (known) {
+      const r = take(
+        (x) => rawShort(x.homeTeam) === known || rawShort(x.awayTeam) === known
+      );
+      if (r) {
+        applyRaw(sk, r);
+        matched.add(sk.id);
+      }
+    }
+  }
+
+  // Pass 3: positional fallback for the remainder (all-unknown slots)
+  const remSk = skeletons
+    .filter((s) => !matched.has(s.id))
+    .sort((a, b) => a.slot - b.slot);
+  const remRaw = pool
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime() ||
+        a.id - b.id
+    );
+  remSk.forEach((sk, i) => {
+    if (remRaw[i]) applyRaw(sk, remRaw[i]);
+  });
+}
+
+/**
+ * Normalize the raw API response into our model, merged onto the fixed bracket.
+ * Rounds are processed in order; each round's winners are propagated into the
+ * next round's empty slots (so the tree fills up and later rounds can be matched
+ * by team identity even before the API publishes their fixtures).
  */
 export function normalize(raw: RawMatchesResponse): WorldCupData {
   const bracket = FALLBACK.bracket.map(deepCloneMatch);
   const thirdPlace = FALLBACK.thirdPlace
     ? deepCloneMatch(FALLBACK.thirdPlace)
     : null;
+
+  const byId = new Map<string, BracketMatch>();
+  for (const m of bracket) byId.set(m.id, m);
+
+  // Reverse wiring: target match → its feeder matches (lower slot = home side).
+  const feedersByTarget = new Map<string, BracketMatch[]>();
+  for (const m of bracket) {
+    if (!m.feedsInto) continue;
+    const arr = feedersByTarget.get(m.feedsInto) ?? [];
+    arr.push(m);
+    feedersByTarget.set(m.feedsInto, arr);
+  }
+
+  const propagateAll = () => {
+    for (const [targetId, feeders] of feedersByTarget) {
+      const target = byId.get(targetId);
+      if (!target) continue;
+      const [low, high] = feeders.slice().sort((a, b) => a.slot - b.slot);
+      if (low && target.home === null) target.home = winningTeam(low);
+      if (high && target.away === null) target.away = winningTeam(high);
+    }
+  };
 
   // Bucket raw knockout matches by mapped round.
   const rawByRound = new Map<Round, RawMatch[]>();
@@ -139,74 +247,19 @@ export function normalize(raw: RawMatchesResponse): WorldCupData {
     rawByRound.set(round, list);
   }
 
-  // --- R32: match by team pair ---
-  const r32Raw = rawByRound.get("R32") ?? [];
-  const r32ByPair = new Map<string, RawMatch>();
-  for (const m of r32Raw) {
-    const key = teamPairKey(
-      m.homeTeam?.tla || m.homeTeam?.name || null,
-      m.awayTeam?.tla || m.awayTeam?.name || null
-    );
-    r32ByPair.set(key, m);
-  }
-  for (const sk of bracket) {
-    if (sk.round !== "R32") continue;
-    const key = teamPairKey(sk.home?.short ?? null, sk.away?.short ?? null);
-    const match = r32ByPair.get(key);
-    if (match) applyRaw(sk, match);
-  }
-
-  // --- R16 / QF / SF / FINAL: positional match by slot order ---
-  const positionalRounds: Round[] = ["R16", "QF", "SF", "FINAL"];
-  for (const round of positionalRounds) {
+  // Process each round: propagate hints from prior rounds, then match the API.
+  for (const round of ROUND_ORDER) {
+    propagateAll();
     const skeletons = bracket
       .filter((m) => m.round === round)
       .sort((a, b) => a.slot - b.slot);
-    const raws = (rawByRound.get(round) ?? [])
-      .slice()
-      .sort(
-        (a, b) =>
-          new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime() ||
-          a.id - b.id
-      );
-    skeletons.forEach((sk, i) => {
-      const r = raws[i];
-      if (r) applyRaw(sk, r);
-    });
+    matchRound(skeletons, rawByRound.get(round) ?? []);
   }
+  propagateAll(); // push the final round's resolved teams through
 
-  // --- Third place ---
-  if (thirdPlace && thirdPlaceRaw) applyRaw(thirdPlace, thirdPlaceRaw);
-
-  // --- Propagate winners into next-round empty slots ---
-  const byId = new Map<string, BracketMatch>();
-  for (const m of bracket) byId.set(m.id, m);
-
-  // Determine which feeder is "home" vs "away" of its target: lower slot → home.
-  const feedersByTarget = new Map<string, BracketMatch[]>();
-  for (const m of bracket) {
-    if (!m.feedsInto) continue;
-    const arr = feedersByTarget.get(m.feedsInto) ?? [];
-    arr.push(m);
-    feedersByTarget.set(m.feedsInto, arr);
-  }
-
-  for (const [targetId, feeders] of feedersByTarget) {
-    const target = byId.get(targetId);
-    if (!target) continue;
-    const ordered = feeders.slice().sort((a, b) => a.slot - b.slot);
-    const [low, high] = ordered;
-    // Only fill slots the API hasn't already resolved.
-    if (low && target.home === null) target.home = winningTeam(low);
-    if (high && target.away === null) target.away = winningTeam(high);
-  }
-
-  // Third-place: losers of the two semi-finals (per skeleton _meta wiring).
+  // Third place: hint from the two semi-final losers, then apply the API match.
   if (thirdPlace) {
-    const feedsLosersInto =
-      (FALLBACK as unknown as {
-        _meta?: { feedsLosersInto?: Record<string, string> };
-      })._meta?.feedsLosersInto ?? {};
+    const feedsLosersInto = FALLBACK._meta?.feedsLosersInto ?? {};
     const semiFeeders = Object.entries(feedsLosersInto)
       .filter(([, dest]) => dest === thirdPlace.id)
       .map(([src]) => byId.get(src))
@@ -216,6 +269,7 @@ export function normalize(raw: RawMatchesResponse): WorldCupData {
       thirdPlace.home = losingTeam(semiFeeders[0]);
     if (semiFeeders[1] && thirdPlace.away === null)
       thirdPlace.away = losingTeam(semiFeeders[1]);
+    if (thirdPlaceRaw) applyRaw(thirdPlace, thirdPlaceRaw);
   }
 
   const live = bracket.filter((m) => m.status === "LIVE");
