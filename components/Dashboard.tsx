@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { WorldCupData } from "@/lib/types";
 import { useWorldCup } from "@/lib/useWorldCup";
 import { nextUpcomingMatch } from "@/lib/bracket";
@@ -17,7 +18,7 @@ export default function Dashboard({ initial }: { initial: WorldCupData }) {
       <Header data={current} nextMatch={nextMatch} />
       <LiveScores data={current} />
       <Bracket data={current} />
-      <footer className="flex items-center justify-between pt-1 text-[11px] text-white/40">
+      <footer className="flex flex-col gap-2 pt-1 text-[11px] text-white/40 sm:flex-row sm:items-center sm:justify-between">
         <span>
           {current.anyLive
             ? "Updating live during matches"
@@ -33,6 +34,22 @@ export default function Dashboard({ initial }: { initial: WorldCupData }) {
                 minute: "2-digit",
               })}`
             : "—"}
+        </span>
+        <span className="flex items-center gap-3">
+          <a
+            href="https://satishhebbal.design"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-2 hover:text-white/70 hover:underline"
+          >
+            satishhebbal.design
+          </a>
+          <Link
+            href="/disclaimer"
+            className="underline-offset-2 hover:text-white/70 hover:underline"
+          >
+            Disclaimer
+          </Link>
         </span>
       </footer>
     </main>
