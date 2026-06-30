@@ -1,5 +1,6 @@
 import type { BracketMatch, TeamRef } from "@/lib/types";
 import { decidedTag } from "@/lib/bracket";
+import ClientDate from "./ClientDate";
 
 function Flag({ team }: { team: TeamRef | null }) {
   if (team?.crest) {
@@ -349,20 +350,24 @@ export default function MatchNode({
               Live
             </span>
           ) : kickoff ? (
-            <span
+            <ClientDate
+              iso={match.kickoff!}
               className="text-[10px] font-medium text-plate-ink/55"
-              suppressHydrationWarning
             >
-              {kickoff.toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-              })}{" "}
-              ·{" "}
-              {kickoff.toLocaleTimeString(undefined, {
-                hour: "numeric",
-                minute: "2-digit",
-              })}
-            </span>
+              {(d) => (
+                <>
+                  {d.toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  })}{" "}
+                  ·{" "}
+                  {d.toLocaleTimeString(undefined, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </>
+              )}
+            </ClientDate>
           ) : (
             <span />
           )}

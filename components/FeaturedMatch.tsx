@@ -283,20 +283,24 @@ export default function FeaturedMatch({
               )}
             </div>
           ) : (
-            <div
-              className="flex flex-col items-center gap-0.5 text-center"
-              suppressHydrationWarning
-            >
-              <span className="text-sm font-bold text-white">
-                {match.kickoff
-                  ? new Date(match.kickoff).toLocaleString(undefined, {
+            <div className="flex flex-col items-center gap-0.5 text-center">
+              {/* Locale/timezone-dependent: render only after mount so the
+                  server and first client render agree (no hydration mismatch). */}
+              <span
+                className="text-sm font-bold text-white"
+                suppressHydrationWarning
+              >
+                {!match.kickoff
+                  ? "Date to be confirmed"
+                  : now === null
+                  ? " "
+                  : new Date(match.kickoff).toLocaleString(undefined, {
                       weekday: "short",
                       month: "short",
                       day: "numeric",
                       hour: "numeric",
                       minute: "2-digit",
-                    })
-                  : "Date to be confirmed"}
+                    })}
               </span>
               {now !== null && match.kickoff && (
                 <span className="text-[13px] font-extrabold uppercase tracking-wide text-gold-400">
