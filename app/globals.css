@@ -12,8 +12,8 @@
   --color-plate-ink: #0b1736;
   --color-accent: #16d3a8; /* live / advancement accent */
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-noto-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 html,
