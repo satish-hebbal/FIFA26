@@ -17,7 +17,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a1f6b",
+  // Dark is the default theme.
+  themeColor: "#0b0b0d",
   width: "device-width",
   initialScale: 1,
 };
