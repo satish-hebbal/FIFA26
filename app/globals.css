@@ -24,6 +24,21 @@ body {
 body {
   margin: 0;
   color: #eaf0ff;
+  /* Solid fallback; the gradient lives on a fixed layer below (body::before).
+     Avoid background-attachment: fixed here — it repaints incorrectly on mobile
+     and leaves a translucent band during scroll. */
+  background-color: #081654;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Full-viewport fixed gradient backdrop — stable during mobile scroll. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
     radial-gradient(
       120% 90% at 72% 38%,
@@ -36,9 +51,6 @@ body {
       rgba(8, 22, 80, 0) 55%
     ),
     linear-gradient(180deg, #0a1f6b 0%, #081654 100%);
-  background-attachment: fixed;
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
 }
 
 /* The bracket board glow card */
