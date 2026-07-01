@@ -223,6 +223,147 @@ html.light .cup-mark {
   animation: shine-sweep 750ms cubic-bezier(0.3, 0, 0.2, 1) forwards;
 }
 
+/* Header "next match" carousel: vertical slot transition. The outgoing match
+   slides up and out while the incoming one rises from the bottom into the same
+   window (directions flip when stepping backwards). */
+@keyframes slot-enter-up {
+  from { transform: translateY(105%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slot-leave-up {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-105%); opacity: 0; }
+}
+@keyframes slot-enter-down {
+  from { transform: translateY(-105%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slot-leave-down {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(105%); opacity: 0; }
+}
+.slot-enter-up,
+.slot-leave-up,
+.slot-enter-down,
+.slot-leave-down {
+  /* `both` fill mode holds the from/to state before and after the run, so the
+     incoming line never paints at its final position for a stray frame. */
+  animation-duration: 340ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+  will-change: transform, opacity;
+}
+.slot-enter-up { animation-name: slot-enter-up; }
+.slot-leave-up { animation-name: slot-leave-up; }
+.slot-enter-down { animation-name: slot-enter-down; }
+.slot-leave-down { animation-name: slot-leave-down; }
+
+/* Thin animated line under the featured-match countdown. A faint gold track
+   with a bright segment that sweeps left→right on a loop. */
+@keyframes countdown-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+.countdown-line {
+  position: relative;
+  height: 2px;
+  width: 72px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(247, 199, 88, 0.18);
+}
+.countdown-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 25%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    rgba(247, 199, 88, 0) 0%,
+    rgba(247, 199, 88, 0.95) 50%,
+    rgba(247, 199, 88, 0) 100%
+  );
+  animation: countdown-sweep 1.8s ease-in-out infinite;
+}
+
+/* Thin animated border for the "Fit to screen" pill: a gold arc that travels
+   around the rounded edge. Uses a masked conic-gradient ring so only a 1px
+   border shows. --fit-angle is registered so the angle can be animated. */
+@property --fit-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes fit-spin {
+  to {
+    --fit-angle: 360deg;
+  }
+}
+.fit-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  padding: 1px; /* ring thickness */
+  background: conic-gradient(
+    from var(--fit-angle),
+    rgba(247, 199, 88, 0) 0deg,
+    rgba(247, 199, 88, 0) 40deg,
+    rgba(255, 244, 214, 0.95) 70deg,
+    rgba(247, 199, 88, 0.9) 90deg,
+    rgba(247, 199, 88, 0) 130deg,
+    rgba(247, 199, 88, 0) 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: fit-spin 3s linear infinite;
+}
+/* Fallback: if @property/mask-composite is unsupported, show a static faint
+   gold ring rather than a filled pill. */
+@supports not (mask-composite: exclude) {
+  .fit-glow::before {
+    background: none;
+    border: 1px solid rgba(247, 199, 88, 0.5);
+    padding: 0;
+  }
+}
+
+/* Thin glossy border for the header "next match" pill: a 1px ring lit from the
+   top (white sheen) fading to a faint gold at the base, masked so only the edge
+   shows. Static — reads as a polished rim. */
+.glossy-border::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(247, 199, 88, 0) 60%,
+    rgba(247, 199, 88, 0.28) 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+@supports not (mask-composite: exclude) {
+  .glossy-border::after {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0;
+  }
+}
+
 /* ---- Featured match (football-pitch hero card) ---- */
 .pitch-bg {
   background-color: #2e9150;

@@ -2,7 +2,7 @@
 
 import type { WorldCupData } from "@/lib/types";
 import { useWorldCup } from "@/lib/useWorldCup";
-import { nextUpcomingMatch } from "@/lib/bracket";
+import { upcomingMatches } from "@/lib/bracket";
 import Header from "./Header";
 import LiveScores from "./LiveScores";
 import Bracket from "./Bracket";
@@ -11,11 +11,12 @@ import LogoLoop from "./LogoLoop";
 export default function Dashboard({ initial }: { initial: WorldCupData }) {
   const { data, lastUpdated, refreshing } = useWorldCup(initial);
   const current = data ?? initial;
-  const nextMatch = nextUpcomingMatch(current);
+  // Up to 5 soonest fixtures for the header carousel.
+  const nextMatches = upcomingMatches(current, 5);
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 py-4 sm:px-5 sm:py-6">
-      <Header nextMatch={nextMatch} />
+      <Header nextMatches={nextMatches} />
       <LiveScores data={current} />
       <Bracket data={current} />
       <footer className="flex flex-col gap-3 pt-1 text-[11px] text-white/40">

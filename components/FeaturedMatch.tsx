@@ -23,6 +23,32 @@ function formatCountdown(iso: string, now: number): string {
   return `in ${secs}s`;
 }
 
+// Kickoff label for the featured card. Uses "Today"/"Tomorrow" (+ time) when the
+// match falls on the current or next calendar day, otherwise the full date. Needs
+// `now` so the day comparison is deterministic (hydration-safe, no fresh Date()).
+function formatKickoff(iso: string, now: number): string {
+  const kickoff = new Date(iso);
+  const time = kickoff.toLocaleString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  // Compare calendar dates in local time by zeroing the time component.
+  const startOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const dayDiff = Math.round(
+    (startOfDay(kickoff) - startOfDay(new Date(now))) / 86400000
+  );
+  if (dayDiff === 0) return `Today, ${time}`;
+  if (dayDiff === 1) return `Tomorrow, ${time}`;
+  return kickoff.toLocaleString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 // Estimated match clock. The free API tier doesn't expose a live minute, so we
 // approximate it from kickoff (accounting for the ~15-min half-time break) and
 // use the real PAUSED flag for an accurate "HT". Returns a label like "67'".
@@ -238,9 +264,23 @@ export default function FeaturedMatch({
             preserveAspectRatio="none"
             aria-hidden="true"
           >
+            <defs>
+              <linearGradient id="plinthTrim" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.15)" />
+                <stop offset="18%" stopColor="rgba(247,199,88,0.85)" />
+                <stop offset="34%" stopColor="rgba(255,244,214,1)" />
+                <stop offset="50%" stopColor="rgba(190,142,54,0.75)" />
+                <stop offset="66%" stopColor="rgba(255,244,214,1)" />
+                <stop offset="82%" stopColor="rgba(247,199,88,0.85)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0.15)" />
+              </linearGradient>
+            </defs>
             <path
               d="M8.5 0 L91.5 0 Q94 0 95 17 L100 100 L0 100 L5 17 Q6 0 8.5 0 Z"
               fill="rgba(0,0,0,0.5)"
+              stroke="url(#plinthTrim)"
+              strokeWidth={1.25}
+              vectorEffect="non-scaling-stroke"
             />
           </svg>
           <div className="relative">
@@ -294,18 +334,15 @@ export default function FeaturedMatch({
                   ? "Date to be confirmed"
                   : now === null
                   ? " "
-                  : new Date(match.kickoff).toLocaleString(undefined, {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                      hour: "numeric",
-                      minute: "2-digit",
-                    })}
+                  : formatKickoff(match.kickoff, now)}
               </span>
               {now !== null && match.kickoff && (
-                <span className="text-[13px] font-extrabold uppercase tracking-wide text-gold-400">
-                  {formatCountdown(match.kickoff, now)}
-                </span>
+                <>
+                  <span className="text-[13px] font-extrabold uppercase tracking-wide text-gold-400">
+                    {formatCountdown(match.kickoff, now)}
+                  </span>
+                  <span className="countdown-line mt-1" aria-hidden="true" />
+                </>
               )}
             </div>
           )}

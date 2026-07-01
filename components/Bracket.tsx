@@ -296,7 +296,14 @@ export default function Bracket({ data }: { data: WorldCupData }) {
   // position cuts off the left rounds) and bring the board back into the
   // viewport (otherwise a deep vertical scroll from the tall expanded view
   // leaves you staring at empty space below the shorter compact bracket).
+  const didMountFit = useRef(false);
   useEffect(() => {
+    // Skip the initial mount: only re-position on an actual user toggle,
+    // otherwise the page auto-scrolls down to the bracket on first load.
+    if (!didMountFit.current) {
+      didMountFit.current = true;
+      return;
+    }
     const canvas = canvasRef.current;
     if (canvas) canvas.scrollLeft = 0;
     setActiveRound(ROUNDS[0].key);
@@ -349,7 +356,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
       {/* Round selector chips + fit/expand toggle */}
       <div className="mb-3 flex items-center gap-2">
         {!fit ? (
-          <div className="flex flex-1 gap-1.5 overflow-x-auto no-scrollbar">
+          <div className="flex flex-1 gap-1.5 overflow-x-auto no-scrollbar pr-1">
             {ROUNDS.map((r) => {
               const active = r.key === activeRound;
               return (
@@ -357,7 +364,7 @@ export default function Bracket({ data }: { data: WorldCupData }) {
                   key={r.key}
                   onClick={() => scrollToRound(r.key)}
                   className={[
-                    "shrink-0 rounded-full px-3 py-1.5 text-xs font-bold transition-colors",
+                    "shrink-0 rounded-full px-2.5 py-1.5 text-xs font-bold transition-colors sm:px-3",
                     active
                       ? "bg-gold-400 text-plate-ink"
                       : "bg-white/10 text-white/70 hover:bg-white/15",
@@ -392,12 +399,15 @@ export default function Bracket({ data }: { data: WorldCupData }) {
 
         <button
           onClick={toggleFit}
-          aria-label={fit ? "Expand bracket" : "Fit whole bracket"}
-          title={fit ? "Expand" : "Fit to screen"}
-          className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white/80 transition-colors hover:bg-white/15"
+          aria-label={fit ? "Zoom in to detailed bracket" : "Fit whole bracket to screen"}
+          title={fit ? "Zoom in" : "Fit to screen"}
+          className="fit-glow relative flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white/80 transition-colors hover:bg-white/15"
         >
           {fit ? <ExpandIcon /> : <FitIcon />}
-          <span className="hidden sm:inline">{fit ? "Expand" : "Fit"}</span>
+          {/* Shorter label on small screens so the round chips (incl. "Final")
+              aren't squeezed off-row; full wording once there's room. */}
+          <span className="sm:hidden">{fit ? "Zoom in" : "Fit"}</span>
+          <span className="hidden sm:inline">{fit ? "Zoom in" : "Fit to screen"}</span>
         </button>
       </div>
 

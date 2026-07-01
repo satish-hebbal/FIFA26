@@ -83,19 +83,25 @@ function PenaltyDots({
 }) {
   return (
     <span className="flex items-center gap-[3px]">
-      {Array.from({ length: total }).map((_, i) => (
-        <span
-          key={i}
-          className={[
-            "h-[7px] w-[7px] rounded-full",
-            i < scored
-              ? won
-                ? "bg-accent"
-                : "bg-plate-ink/45"
-              : "border border-plate-ink/25",
-          ].join(" ")}
-        />
-      ))}
+      {Array.from({ length: total }).map((_, i) =>
+        i < scored ? (
+          <span
+            key={i}
+            aria-hidden="true"
+            className={[
+              "h-[11px] w-[11px] rounded-full bg-contain bg-center bg-no-repeat",
+              won ? "" : "opacity-55 grayscale",
+            ].join(" ")}
+            style={{ backgroundImage: "url(/ball.png)" }}
+          />
+        ) : (
+          <span
+            key={i}
+            aria-hidden="true"
+            className="h-[11px] w-[11px] rounded-full border border-plate-ink/25"
+          />
+        )
+      )}
     </span>
   );
 }

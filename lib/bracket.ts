@@ -57,12 +57,21 @@ export function decidedTag(match: BracketMatch): string | null {
 }
 
 /** Soonest upcoming match with a known kickoff (used for the header countdown). */
-export function nextUpcomingMatch(data: WorldCupData): BracketMatch | null {
+// Upcoming matches (those with a kickoff), soonest first. `limit` caps the list
+// for the header carousel; omit it to get all of them.
+export function upcomingMatches(
+  data: WorldCupData,
+  limit?: number
+): BracketMatch[] {
   const all = [...data.bracket, ...(data.thirdPlace ? [data.thirdPlace] : [])];
   const upcoming = all
     .filter((m) => m.status === "UPCOMING" && m.kickoff)
     .sort(
       (a, b) => new Date(a.kickoff!).getTime() - new Date(b.kickoff!).getTime()
     );
-  return upcoming[0] ?? null;
+  return limit ? upcoming.slice(0, limit) : upcoming;
+}
+
+export function nextUpcomingMatch(data: WorldCupData): BracketMatch | null {
+  return upcomingMatches(data, 1)[0] ?? null;
 }
