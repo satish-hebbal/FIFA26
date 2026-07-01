@@ -197,7 +197,7 @@ export default function Header({
   nextMatches: BracketMatch[];
 }) {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+    <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 lg:flex-nowrap">
       <div className="flex shrink-0 items-center gap-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -212,7 +212,7 @@ export default function Header({
         </h1>
       </div>
 
-      <div className="w-full">
+      <div className="w-full lg:ml-auto lg:w-auto lg:min-w-[340px] lg:max-w-md">
         {nextMatches.length > 0 ? (
           <NextMatchPill matches={nextMatches} />
         ) : (

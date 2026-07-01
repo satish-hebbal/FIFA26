@@ -126,6 +126,23 @@ html.light :is(header, footer, .board-surface) [class*="bg-white/"] {
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
 
+/* Desktop sidebar schedule panel — same light-theme recolour treatment as the
+   header/footer chrome (it lives outside .board-surface, so it needs its own
+   rules). Only ever rendered at lg, but themed for both. */
+html.light .sidebar-panel {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+html.light .sidebar-panel [class*="text-white"] {
+  color: rgba(20, 20, 26, 0.82) !important;
+}
+html.light .sidebar-panel [class*="text-gold"] {
+  color: #9a6f00 !important;
+}
+html.light .sidebar-panel [class*="bg-white/"] {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
 /* Footer wordmark: white on dark, black on light. */
 .logo-mark img {
   filter: brightness(0) invert(1);
@@ -333,6 +350,48 @@ html.light .cup-mark {
     background: none;
     border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 0;
+  }
+}
+
+/* Fit button discovery hint: a faint gold "comet" arc that rotates around the
+   pill's border, nudging people to try the fit / converging bracket views. Kept
+   subtle (thin, mostly-transparent, slow) so it reads as a hint, not a nag.
+   Applied only in the un-fit state (see Bracket.tsx). Rides on ::before so it
+   coexists with the static .glossy-border ::after rim. */
+@property --fit-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes fit-rotate {
+  to {
+    --fit-angle: 360deg;
+  }
+}
+.fit-hint::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  padding: 1px; /* ring thickness */
+  background: conic-gradient(
+    from var(--fit-angle),
+    rgba(247, 199, 88, 0) 0deg,
+    rgba(247, 199, 88, 0) 280deg,
+    rgba(247, 199, 88, 0.4) 330deg,
+    rgba(255, 244, 214, 0.55) 348deg,
+    rgba(247, 199, 88, 0) 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: fit-rotate 4.2s linear infinite;
+}
+/* Browsers without conic @property support still show a static gold arc. */
+@media (prefers-reduced-motion: reduce) {
+  .fit-hint::before {
+    animation: none;
   }
 }
 

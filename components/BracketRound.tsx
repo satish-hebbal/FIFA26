@@ -44,7 +44,11 @@ export default function BracketRound({
         "relative z-10 flex flex-col",
         compact
           ? fixedWidth
-            ? "w-[76px] shrink-0 gap-1 px-0.5 sm:w-[96px]"
+            // lg:grow — on wide desktop the fixed columns don't fill the board,
+            // leaving a gap on the right; letting them grow absorbs the free
+            // space. On mobile the row overflows (no free space) so grow is a
+            // no-op and it scrolls as before.
+            ? "w-[76px] shrink-0 gap-1 px-0.5 sm:w-[96px] lg:grow"
             : "min-w-0 flex-1 gap-1 px-0.5"
           : "w-[224px] shrink-0 snap-start gap-3 px-2 sm:w-[248px]",
       ].join(" ")}

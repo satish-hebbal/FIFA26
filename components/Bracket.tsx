@@ -415,7 +415,12 @@ export default function Bracket({ data }: { data: WorldCupData }) {
           onClick={toggleFit}
           aria-label={fit ? "Zoom in to detailed bracket" : "Fit whole bracket to screen"}
           title={fit ? "Zoom in" : "Fit to screen"}
-          className="glossy-border relative flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white/80 transition-colors hover:bg-white/15"
+          className={[
+            "glossy-border relative flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white/80 transition-colors hover:bg-white/15",
+            // Rotating-border discovery hint, only while the fit view is
+            // undiscovered (i.e. not already fitted).
+            fit ? "" : "fit-hint",
+          ].join(" ")}
         >
           {fit ? <ExpandIcon /> : <FitIcon />}
           {/* Shorter label on small screens so the round chips (incl. "Final")

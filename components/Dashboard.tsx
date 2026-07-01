@@ -2,10 +2,11 @@
 
 import type { WorldCupData } from "@/lib/types";
 import { useWorldCup } from "@/lib/useWorldCup";
-import { upcomingMatches } from "@/lib/bracket";
+import { upcomingMatches, buildPlaceholders } from "@/lib/bracket";
 import Header from "./Header";
 import LiveScores from "./LiveScores";
 import Bracket from "./Bracket";
+import UpcomingList from "./UpcomingList";
 import LogoLoop from "./LogoLoop";
 
 export default function Dashboard({ initial }: { initial: WorldCupData }) {
@@ -13,12 +14,35 @@ export default function Dashboard({ initial }: { initial: WorldCupData }) {
   const current = data ?? initial;
   // Up to 5 soonest fixtures for the header carousel.
   const nextMatches = upcomingMatches(current, 5);
+  // Desktop sidebar schedule: the next several fixtures, minus the one already
+  // featured by LiveScores (when nothing is live, that's the soonest match).
+  const featuredId = current.live[0]?.id ?? nextMatches[0]?.id;
+  const upcomingList = upcomingMatches(current)
+    .filter((m) => m.id !== featuredId)
+    .slice(0, 7);
+  const placeholders = buildPlaceholders(current.bracket);
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 py-4 sm:px-5 sm:py-6">
+    // Mobile (base/sm) is a single stacked column — untouched. The page stays a
+    // vertical flow (header, body, footer); only the middle body splits into two
+    // columns from lg up. Keeping the two-column grid to just that body section
+    // means the sticky sidebar is bounded by the bracket's height and can't run
+    // under the footer.
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 py-4 sm:px-5 sm:py-6 lg:max-w-[1440px] lg:gap-5 lg:px-8">
       <Header nextMatches={nextMatches} />
-      <LiveScores data={current} />
-      <Bracket data={current} />
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(340px,380px)_1fr] lg:items-start lg:gap-5">
+        <div className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
+          <LiveScores data={current} />
+          {/* Fills the sticky sidebar on desktop; hidden on mobile where the
+              header carousel already surfaces upcoming fixtures. */}
+          {upcomingList.length > 0 && (
+            <div className="hidden lg:block">
+              <UpcomingList matches={upcomingList} placeholders={placeholders} />
+            </div>
+          )}
+        </div>
+        <Bracket data={current} />
+      </div>
       <footer className="flex flex-col gap-3 pt-1 text-[11px] text-white/40">
         {/* row 1: status (left) + last-updated (right) */}
         <div className="flex items-center justify-between gap-3">

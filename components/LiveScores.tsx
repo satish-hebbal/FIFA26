@@ -32,7 +32,7 @@ export default function LiveScores({ data }: { data: WorldCupData }) {
               {rest.length}
             </span>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
             {rest.map((m) => (
               <LiveMatchCard key={m.id} match={m} />
             ))}
