@@ -291,48 +291,20 @@ html.light .cup-mark {
   animation: countdown-sweep 1.8s ease-in-out infinite;
 }
 
-/* Thin animated border for the "Fit to screen" pill: a gold arc that travels
-   around the rounded edge. Uses a masked conic-gradient ring so only a 1px
-   border shows. --fit-angle is registered so the angle can be animated. */
-@property --fit-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
+/* Skeuomorphic segmented toggle (bracket layout switch). The track is a
+   recessed groove; the selected segment is a raised, glossy gold key. */
+.seg-track {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
-@keyframes fit-spin {
-  to {
-    --fit-angle: 360deg;
-  }
-}
-.fit-glow::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  padding: 1px; /* ring thickness */
-  background: conic-gradient(
-    from var(--fit-angle),
-    rgba(247, 199, 88, 0) 0deg,
-    rgba(247, 199, 88, 0) 40deg,
-    rgba(255, 244, 214, 0.95) 70deg,
-    rgba(247, 199, 88, 0.9) 90deg,
-    rgba(247, 199, 88, 0) 130deg,
-    rgba(247, 199, 88, 0) 360deg
-  );
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  animation: fit-spin 3s linear infinite;
-}
-/* Fallback: if @property/mask-composite is unsupported, show a static faint
-   gold ring rather than a filled pill. */
-@supports not (mask-composite: exclude) {
-  .fit-glow::before {
-    background: none;
-    border: 1px solid rgba(247, 199, 88, 0.5);
-    padding: 0;
-  }
+.seg-active {
+  background: linear-gradient(180deg, #f9da7d 0%, #f5c65a 48%, #eeb43c 100%);
+  border: 1px solid rgba(150, 105, 20, 0.55);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1.5px 1px rgba(150, 95, 10, 0.35);
 }
 
 /* Thin glossy border for the header "next match" pill: a 1px ring lit from the

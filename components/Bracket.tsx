@@ -381,27 +381,41 @@ export default function Bracket({ data }: { data: WorldCupData }) {
           </span>
         )}
 
-        {/* Layout direction toggle — split/converging vs. linear. Fit only. */}
+        {/* Layout direction toggle — segmented: linear vs. converging. Fit only. */}
         {fit && (
-          <button
-            onClick={() => setSplit((s) => !s)}
-            aria-label={split ? "Linear layout" : "Converging layout"}
-            title={split ? "Linear (left to right)" : "Converging (split)"}
-            className="flex shrink-0 items-center justify-center rounded-full bg-white/10 px-3 py-2 text-white/80 transition-colors hover:bg-white/15"
-          >
-            {split ? (
+          <div className="seg-track flex shrink-0 items-center gap-0.5 rounded-full p-0.5">
+            <button
+              onClick={() => setSplit(false)}
+              aria-pressed={!split}
+              aria-label="Linear layout"
+              title="Linear (left to right)"
+              className={[
+                "flex items-center justify-center rounded-full px-2.5 py-1.5",
+                !split ? "seg-active text-plate-ink" : "text-white/60 hover:text-white/85",
+              ].join(" ")}
+            >
               <ViewIcon src="/left-view.svg" width={17} />
-            ) : (
+            </button>
+            <button
+              onClick={() => setSplit(true)}
+              aria-pressed={split}
+              aria-label="Converging layout"
+              title="Converging (split)"
+              className={[
+                "flex items-center justify-center rounded-full px-2.5 py-1.5",
+                split ? "seg-active text-plate-ink" : "text-white/60 hover:text-white/85",
+              ].join(" ")}
+            >
               <ViewIcon src="/left-right-view.svg" width={24} />
-            )}
-          </button>
+            </button>
+          </div>
         )}
 
         <button
           onClick={toggleFit}
           aria-label={fit ? "Zoom in to detailed bracket" : "Fit whole bracket to screen"}
           title={fit ? "Zoom in" : "Fit to screen"}
-          className="fit-glow relative flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white/80 transition-colors hover:bg-white/15"
+          className="glossy-border relative flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white/80 transition-colors hover:bg-white/15"
         >
           {fit ? <ExpandIcon /> : <FitIcon />}
           {/* Shorter label on small screens so the round chips (incl. "Final")
